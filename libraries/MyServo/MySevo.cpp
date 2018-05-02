@@ -17,11 +17,14 @@ void MyServo::attach( int outputPin, int analogPin ){
 }
 
 void MyServo::setPosition( unsigned int target ){
-	// if( target < _minPosition ) 		_targetPosition = _minPosition;
-	// else if( target > _maxPosition ) 	_targetPosition = _maxPosition;
-	// else 								_targetPosition = target;
-	
-	_position = target;
+	 if( target < _minPosition ) 		_position = _minPosition;
+	 else if( target > _maxPosition ) 	_position = _maxPosition;
+	 else 								_position = target;
+}
+
+void MyServo::setPositionRange( unsigned int min, unsigned int max ){
+	_minPosition = min;
+	_maxPosition = max;
 }
 
 unsigned int MyServo::getPosition(){

@@ -15,6 +15,7 @@ class MyServo {
 		
 		// Gestion position
 		void setPosition( unsigned int target );
+		void setPositionRange( unsigned int min, unsigned int max );
 		unsigned int getPosition();
 		
 		// Gestion couple
@@ -30,6 +31,8 @@ class MyServo {
 		int _analogPin;
 		
 		unsigned int _position;
+		unsigned int _minPosition = 8000;
+		unsigned int _maxPosition = 32000;
 		
 		unsigned int _torque;
 		

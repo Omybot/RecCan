@@ -18,6 +18,7 @@ class MyServoHandler {
 		
 		// Gestion position
 		void setPosition( byte servoNumber, unsigned int position );
+		void setPositionRange( byte servoNumber, unsigned int min, unsigned int max );
 		unsigned int getPosition( byte servoNumber );
 		
 		// Gestion du couple

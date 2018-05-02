@@ -30,6 +30,10 @@ void MyServoHandler::setPosition( byte servoNumber, unsigned int position ){
 	_servos[servoNumber].setPosition( position );
 }
 
+void MyServoHandler::setPositionRange( byte servoNumber, unsigned int min, unsigned int max ){
+	_servos[servoNumber].setPositionRange( min, max );
+}
+
 unsigned int MyServoHandler::getPosition( byte servoNumber ){
 	return _servos[servoNumber].getPosition();
 }
