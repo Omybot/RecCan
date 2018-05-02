@@ -16,10 +16,19 @@ class MyServoHandler {
 		void timer1Interrupt();
 		void timer2Interrupt();
 		
+		// Paramètres
+		void setPositionRange( byte servoNumber, unsigned int min, unsigned int max );
+		
 		// Gestion position
 		void setPosition( byte servoNumber, unsigned int position );
-		void setPositionRange( byte servoNumber, unsigned int min, unsigned int max );
 		unsigned int getPosition( byte servoNumber );
+		
+		void setTargetPosition( byte servoNumber, unsigned int target );
+		unsigned int getTargetPosition( byte servoNumber );
+		
+		// Gestion de la vitesse
+		void setSpeed( byte servoNumber, unsigned int speed );
+		unsigned int getSpeed( byte servoNumber );
 		
 		// Gestion du couple
 		unsigned int getTorque( byte servoNumber );

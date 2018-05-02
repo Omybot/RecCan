@@ -26,18 +26,34 @@ void MyServoHandler::timer2Interrupt(){
 	handleNextServo();
 }
 
-void MyServoHandler::setPosition( byte servoNumber, unsigned int position ){
-	_servos[servoNumber].setPosition( position );
-}
-
 void MyServoHandler::setPositionRange( byte servoNumber, unsigned int min, unsigned int max ){
 	_servos[servoNumber].setPositionRange( min, max );
+}
+
+void MyServoHandler::setPosition( byte servoNumber, unsigned int position ){
+	_servos[servoNumber].setPosition( position );
 }
 
 unsigned int MyServoHandler::getPosition( byte servoNumber ){
 	return _servos[servoNumber].getPosition();
 }
-	
+
+void MyServoHandler::setTargetPosition( byte servoNumber, unsigned int target ){
+	_servos[servoNumber].setTargetPosition( target );
+}
+
+unsigned int MyServoHandler::getTargetPosition( byte servoNumber ){
+	return _servos[servoNumber].getTargetPosition();
+}
+
+void MyServoHandler::setSpeed( byte servoNumber, unsigned int speed ){
+	_servos[servoNumber].setSpeed(speed);
+}
+
+unsigned int MyServoHandler::getSpeed( byte servoNumber ){
+	return _servos[servoNumber].getSpeed();
+}
+
 unsigned int MyServoHandler::getTorque( byte servoNumber ){
 	return _servos[servoNumber].getTorque();
 }
@@ -79,10 +95,10 @@ void MyServoHandler::handleNextServo(){
 	_currentServo = (_currentServo+1) % 4;
 	
 	// Calcul la nouvelle position
-	unsigned int pos = _servos[_currentServo].getPosition();
+	unsigned int newPos = _servos[_currentServo].getNextPosition();
 	
-	if( pos != 0 ){
-		rearmTimer1( pos );						// Timer1 comme chronometre pour compter temps sortie servo état haut
+	if( newPos != 0 ){
+		rearmTimer1( newPos );						// Timer1 comme chronometre pour compter temps sortie servo état haut
 		_servos[_currentServo].setOutputHigh();	// Sortie servo à l'état haut
 	}
 	

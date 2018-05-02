@@ -13,10 +13,20 @@ class MyServo {
 		// Initialisation
 		void attach( int outputPin, int analogPin );
 		
-		// Gestion position
-		void setPosition( unsigned int target );
+		// Parametres
 		void setPositionRange( unsigned int min, unsigned int max );
+		
+		// Gestion position
+		void setPosition( unsigned int position );
 		unsigned int getPosition();
+		unsigned int getNextPosition();
+		
+		void setTargetPosition( unsigned int target );
+		unsigned int getTargetPosition();
+		
+		// Gestion de la vitesse
+		void setSpeed( unsigned int speed );
+		unsigned int getSpeed();
 		
 		// Gestion couple
 		unsigned int getTorque();
@@ -30,11 +40,14 @@ class MyServo {
 		int _outputPin;
 		int _analogPin;
 		
+		unsigned int _targetPosition;
 		unsigned int _position;
 		unsigned int _minPosition = 8000;
 		unsigned int _maxPosition = 32000;
 		
-		unsigned int _torque;
+		int _speed = 500;
+		
+		int _torque;
 		
 };
 
