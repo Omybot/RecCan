@@ -8,37 +8,39 @@
 // Gestion bus CAN
 /////////////////////////////////
 
-  #define SPI_CS_PIN 8
-  MCP_CAN CAN(SPI_CS_PIN);
-  
-  // Déclaration structure pour une trame
-  struct canFrame{
-    unsigned int id;
-    unsigned char size;
-    unsigned char msg[8];
-  };
-  
-  // Stockage des trames
-  volatile MyQueue<canFrame> framesFromCAN( 5 );              // Pile pour stocker les messages provenant du bus CAN
-  volatile MyQueue<canFrame> framesToCAN( 5 );                // Pile pour stocker les messages à envoyer sur le bus CAN
-  
-  // Fonction déclenchée lors reception des trames
-  void MCP2515_ISR(){
-    while (CAN_MSGAVAIL == CAN.checkReceive()){
-      canFrame f;
-      CAN.readMsgBuf( &f.size, f.msg );
-      f.id = CAN.getCanId();
-      framesFromCAN.push( f );                                // Stockage du message provenant du bus CAN
-    }
-  }
+#define CAN_ID  0
 
-  // Envoi de la dernière trame de la queue
-  void handleFramesToCAN(){
-    if( framesToCAN.count() > 0 ){
-      canFrame f = framesToCAN.pop();
-      CAN.sendMsgBuf( f.id, 0, f.size, f.msg );               // Envoi du message sur le bus CAN
-    }
+#define SPI_CS_PIN 8
+MCP_CAN CAN(SPI_CS_PIN);
+
+// Déclaration structure pour une trame
+struct canFrame{
+  unsigned int id;
+  unsigned char size;
+  unsigned char msg[8];
+};
+
+// Stockage des trames
+volatile MyQueue<canFrame> framesFromCAN( 5 );              // Pile pour stocker les messages provenant du bus CAN
+volatile MyQueue<canFrame> framesToCAN( 5 );                // Pile pour stocker les messages à envoyer sur le bus CAN
+
+// Fonction déclenchée lors reception des trames
+void MCP2515_ISR(){
+  while (CAN_MSGAVAIL == CAN.checkReceive()){
+    canFrame f;
+    CAN.readMsgBuf( &f.size, f.msg );
+    f.id = CAN.getCanId();
+    framesFromCAN.push( f );                                // Stockage du message provenant du bus CAN
   }
+}
+
+// Envoi de la dernière trame de la queue
+void handleFramesToCAN(){
+  if( framesToCAN.count() > 0 ){
+    canFrame f = framesToCAN.pop();
+    CAN.sendMsgBuf( f.id, 0, f.size, f.msg );               // Envoi du message sur le bus CAN
+  }
+}
 
 /////////////////////////////////
 // Gestion des servos
@@ -75,8 +77,7 @@ void setup() {
   // Filtre pour ne prendre en compte que les trames désirées
   CAN.init_Mask(0, 0, 0x7ff); 
   CAN.init_Mask(1, 0, 0x7ff); 
-  int canId = 1;
-  CAN.init_Filt(0, 0, canId);
+  CAN.init_Filt(0, 0, CAN_ID);    // Ne prend en compte que les trames d'identifiant CAN_ID
 
 }
 
@@ -112,23 +113,106 @@ void loop() {
     unsigned int buf;
     
     switch( command ){
-      // Demande position cible
-      case 1:
-          buf = servos.getPosition( servoId );
-          response.msg[1] = 0x02;
+
+      // Gestion position
+      case 0x01:      // Demande position cible
+          response.msg[1] = 0x02;           // Commande retour position
           response.msg[2] = servoId;
+          buf = servos.getPosition( servoId );
           response.msg[3] = buf / 0x100;    // [MSB] position
           response.msg[4] = buf % 0x100;    // [LSB] position
         break;
-      // Envoi position cible
-      case 3 :      
+      case 0x03 :     // Envoi position cible
           buf = f.msg[3] * 0x100 + f.msg[4];
           servos.setPosition( servoId, buf );
-          response.msg[1] = 0x02;
+          response.msg[1] = 0x02;           // Commande retour position
           response.msg[2] = servoId;
+          buf = servos.getPosition( servoId );
           response.msg[3] = buf / 0x100;    // [MSB] position
           response.msg[4] = buf % 0x100;    // [LSB] position
         break;
+
+      // Gestion position min
+      case 0x04:      // Demande position min
+          response.msg[1] = 0x05;           // Commande retour position min
+          response.msg[2] = servoId;
+          buf = servos.getMinPosition( servoId );
+          response.msg[3] = buf / 0x100;    // [MSB] position min
+          response.msg[4] = buf % 0x100;    // [LSB] position min
+        break;
+      case 0x06 :     // Envoi position min    
+          buf = f.msg[3] * 0x100 + f.msg[4];
+          servos.setMinPosition( servoId, buf );
+          response.msg[1] = 0x05;           // Commande retour position min
+          response.msg[2] = servoId;
+          buf = servos.getMinPosition( servoId );
+          response.msg[3] = buf / 0x100;    // [MSB] position min
+          response.msg[4] = buf % 0x100;    // [LSB] position min
+        break;
+
+      // Gestion position max
+      case 0x07:      // Demande position max
+          response.msg[1] = 0x08;           // Commande retour position max
+          response.msg[2] = servoId;
+          buf = servos.getMaxPosition( servoId );
+          response.msg[3] = buf / 0x100;    // [MSB] position max
+          response.msg[4] = buf % 0x100;    // [LSB] position max
+        break;
+      case 0x09 :     // Envoi position max    
+          buf = f.msg[3] * 0x100 + f.msg[4];
+          servos.setMaxPosition( servoId, buf );
+          buf = servos.getMaxPosition( servoId );
+          response.msg[1] = 0x08;           // Commande retour position max
+          response.msg[2] = servoId;
+          response.msg[3] = buf / 0x100;    // [MSB] position max
+          response.msg[4] = buf % 0x100;    // [LSB] position max
+        break;
+        
+      // Gestion vitesse
+      case 0x0A:      // Demande vitesse
+          response.msg[1] = 0x0B;           // Commande retour vitesse
+          response.msg[2] = servoId;
+          buf = servos.getSpeed( servoId );
+          response.msg[3] = buf / 0x100;    // [MSB] vitesse
+          response.msg[4] = buf % 0x100;    // [LSB] vitesse
+        break;
+      case 0x0C :     // Envoi vitesse    
+          buf = f.msg[3] * 0x100 + f.msg[4];
+          servos.setSpeed( servoId, buf );
+          response.msg[1] = 0x0B;           // Commande retour vitesse
+          response.msg[2] = servoId;
+          buf = servos.getSpeed( servoId );
+          response.msg[3] = buf / 0x100;    // [MSB] vitesse
+          response.msg[4] = buf % 0x100;    // [LSB] vitesse
+        break;
+        
+      // Gestion couple max
+      case 0x0D:      // Demande couple max
+          response.msg[1] = 0x0E;           // Commande retour couple max
+          response.msg[2] = servoId;
+          buf = servos.getMaxTorque( servoId );
+          response.msg[3] = buf / 0x100;    // [MSB] couple max
+          response.msg[4] = buf % 0x100;    // [LSB] couple max
+        break;
+      case 0x0F :     // Envoi couple max    
+          buf = f.msg[3] * 0x100 + f.msg[4];
+          servos.setMaxTorque( servoId, buf );
+          response.msg[1] = 0x0D;           // Commande retour couple max
+          response.msg[2] = servoId;
+          buf = servos.getMaxTorque( servoId );
+          response.msg[3] = buf / 0x100;    // [MSB] couple max
+          response.msg[4] = buf % 0x100;    // [LSB] couple max
+        break;
+
+      // Gestion couple
+      case 0x10 :     // Demande couple
+          response.msg[1] = 0x0D;           // Commande retour couple
+          response.msg[2] = servoId;
+          buf = servos.getTorque( servoId );
+          response.msg[3] = buf / 0x100;    // [MSB] couple
+          response.msg[4] = buf % 0x100;    // [LSB] couple
+        break;
+        
     }
 
     response.msg[7] = (response.id / 0x100) ^ (response.id % 0x100);
