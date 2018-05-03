@@ -1,0 +1,22 @@
+#######################################
+# Syntax Coloring Map For This Library
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+# i.e. : ClassName KEYWORD 1
+#######################################
+MyQueue	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+# i.e. : functionOne KEYWORD2
+#######################################
+push	KEYWORD2
+pop	KEYWORD2
+peek	KEYWORD2
+count	KEYWORD2
+isEmpty	KEYWORD2
+isFull	KEYWORD2
+resize	KEYWORD2
+
