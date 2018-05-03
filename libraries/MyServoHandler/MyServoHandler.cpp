@@ -26,8 +26,20 @@ void MyServoHandler::timer2Interrupt(){
 	handleNextServo();
 }
 
-void MyServoHandler::setPositionRange( byte servoNumber, unsigned int min, unsigned int max ){
-	_servos[servoNumber].setPositionRange( min, max );
+void MyServoHandler::setMinPosition( byte servoNumber, unsigned int min ){
+	_servos[servoNumber].setMinPosition( min );
+}
+	
+unsigned int MyServoHandler::getMinPosition( byte servoNumber ){
+	return _servos[servoNumber].getMinPosition( );
+}
+
+void MyServoHandler::setMaxPosition( byte servoNumber, unsigned int max ){
+	_servos[servoNumber].setMaxPosition( max );
+}
+	
+unsigned int MyServoHandler::getMaxPosition( byte servoNumber ){
+	return _servos[servoNumber].getMaxPosition();
 }
 
 void MyServoHandler::setPosition( byte servoNumber, unsigned int position ){

@@ -17,7 +17,10 @@ class MyServoHandler {
 		void timer2Interrupt();
 		
 		// Paramètres
-		void setPositionRange( byte servoNumber, unsigned int min, unsigned int max );
+		void setMinPosition( byte servoNumber, unsigned int min );
+		unsigned int getMinPosition( byte servoNumber );
+		void setMaxPosition( byte servoNumber, unsigned int max );
+		unsigned int getMaxPosition( byte servoNumber );
 		
 		// Gestion position
 		void setPosition( byte servoNumber, unsigned int position );

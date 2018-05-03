@@ -13,11 +13,14 @@ class MyServo {
 		// Initialisation
 		void attach( int outputPin, int analogPin );
 		
-		// Parametres
-		void setPositionRange( unsigned int min, unsigned int max );
-		
 		// Gestion position
 		void setPosition( unsigned int position );
+		
+		void setMinPosition( unsigned int min );
+		unsigned int getMinPosition();
+		void setMaxPosition( unsigned int max );
+		unsigned int getMaxPosition();
+		
 		unsigned int getPosition();
 		unsigned int getNextPosition();
 		
