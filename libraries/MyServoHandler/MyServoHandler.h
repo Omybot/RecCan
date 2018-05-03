@@ -34,6 +34,8 @@ class MyServoHandler {
 		unsigned int getSpeed( byte servoNumber );
 		
 		// Gestion du couple
+		void setMaxTorque( byte servoNumber, unsigned int maxTorque );
+		unsigned int getMaxTorque( byte servoNumber );
 		unsigned int getTorque( byte servoNumber );
 		
 	private :

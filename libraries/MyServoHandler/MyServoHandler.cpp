@@ -24,6 +24,7 @@ void MyServoHandler::timer1Interrupt(){
 
 void MyServoHandler::timer2Interrupt(){
 	handleNextServo();
+	_servos[_currentServo].updateTorque();
 }
 
 void MyServoHandler::setMinPosition( byte servoNumber, unsigned int min ){
@@ -64,6 +65,14 @@ void MyServoHandler::setSpeed( byte servoNumber, unsigned int speed ){
 
 unsigned int MyServoHandler::getSpeed( byte servoNumber ){
 	return _servos[servoNumber].getSpeed();
+}
+
+void MyServoHandler::setMaxTorque( byte servoNumber, unsigned int maxTorque ){
+	_servos[servoNumber].setMaxTorque(maxTorque);
+}
+
+unsigned int MyServoHandler::getMaxTorque( byte servoNumber ){
+	return _servos[servoNumber].getMaxTorque();
 }
 
 unsigned int MyServoHandler::getTorque( byte servoNumber ){

@@ -33,10 +33,12 @@ unsigned int MyServo::getMaxPosition(){
 }
 	
 void MyServo::setPosition( unsigned int position ){
+	
 	if( position < _minPosition ) 		_position = _minPosition;
 	else if( position > _maxPosition ) 	_position = _maxPosition;
 	else 								_position = position;
 	_targetPosition = _position;
+	
 }
 
 unsigned int MyServo::getPosition(){
@@ -45,12 +47,21 @@ unsigned int MyServo::getPosition(){
 
 unsigned int MyServo::getNextPosition(){
 	
+	// Calcul de la direction
 	long error = (long)_targetPosition - (long)_position;			// Calcul de l'erreur de position
+	if( error > 0 ) 		_direction = 1;							// position très inférieure à la cible
+	else if( error < 0 ) 	_direction = -1;						// position supérieure à la cible
+	else if( error == 0 )	return _position;
 	
-	if( error > _speed )			_position += _speed;			// position très inférieure à la cible
-	else if( error <  -_speed )		_position -= _speed;			// position très supérieure à la cible
-	else _position = 				_targetPosition;				// position proche de la cible
+	// Calcul de la position suivante
+	if( _torque > _maxTorque )	_position -= _direction*_speed;
+	else						_position += _direction*_speed;
 	
+	// Vérification dépassement de la cible
+	if( ( _direction == 1 && _position > _targetPosition ) || ( _direction == -1 && _position < _targetPosition ) )
+		_position = _targetPosition;
+	
+	//Vérification des limites
 	if( _position < _minPosition ) 		_position = _minPosition;	// Vérif des limites
 	else if( _position > _maxPosition ) _position = _maxPosition;
 	
@@ -59,9 +70,12 @@ unsigned int MyServo::getNextPosition(){
 }
 
 void MyServo::setTargetPosition( unsigned int target ){
+
+	// Vérification des limites
 	if( target < _minPosition ) 		_targetPosition = _minPosition;
 	else if( target > _maxPosition ) 	_targetPosition = _maxPosition;
 	else 								_targetPosition = target;
+	
 }
 
 unsigned int MyServo::getTargetPosition(){
@@ -75,10 +89,21 @@ void MyServo::setSpeed( unsigned int speed ){
 unsigned int MyServo::getSpeed(){
 	return _speed;
 }
+	
+void MyServo::setMaxTorque( unsigned int maxTorque ){
+	_maxTorque = maxTorque;
+}
+
+unsigned int MyServo::getMaxTorque(){
+	return _maxTorque;
+}
 
 unsigned int MyServo::getTorque(){
-	_torque = analogRead( _analogPin );
 	return _torque;
+}
+
+void MyServo::updateTorque(){
+	_torque = analogRead( _analogPin );
 }
 
 void MyServo::setOutputHigh(){

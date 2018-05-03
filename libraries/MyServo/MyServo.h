@@ -32,7 +32,10 @@ class MyServo {
 		unsigned int getSpeed();
 		
 		// Gestion couple
+		void setMaxTorque( unsigned int maxTorque );
+		unsigned int getMaxTorque();
 		unsigned int getTorque();
+		void updateTorque();
 		
 		// Gestion pin de sortie
 		void setOutputHigh();
@@ -43,13 +46,17 @@ class MyServo {
 		int _outputPin;
 		int _analogPin;
 		
+		int _direction;
+		
 		unsigned int _targetPosition;
 		unsigned int _position;
 		unsigned int _minPosition = 8000;
 		unsigned int _maxPosition = 32000;
 		
-		int _speed = 500;
+		unsigned int _speed = 500;
+		unsigned int _reverseSpeed = 100;
 		
+		unsigned int _maxTorque = 1000;
 		int _torque;
 		
 };
