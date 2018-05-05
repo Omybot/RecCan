@@ -63,7 +63,7 @@ ISR(TIMER2_COMPA_vect){
 /////////////////////////////////
 void setup() {
 
-  Serial.begin(115200);
+  //Serial.begin(115200);
   
   // Gestion des pins
   servos.attach();
@@ -93,16 +93,6 @@ void loop() {
     byte frameNumber = f.msg[0];
     byte command = f.msg[1];
     byte servoId = f.msg[2];
-
-    Serial.println( "Nouvelle commande " );
-    Serial.print( "id : " );
-    Serial.println( f.id , HEX );
-    Serial.print( "fum : " );
-    Serial.println( frameNumber, HEX );
-    Serial.print( "cmd : " );
-    Serial.println( command , HEX );
-    Serial.print( "servoid : " );
-    Serial.println( servoId , HEX );
     
     canFrame response;
     response.id = f.id;
@@ -197,7 +187,7 @@ void loop() {
       case 0x0F :     // Envoi couple max    
           buf = f.msg[3] * 0x100 + f.msg[4];
           servos.setMaxTorque( servoId, buf );
-          response.msg[1] = 0x0D;           // Commande retour couple max
+          response.msg[1] = 0x0E;           // Commande retour couple max
           response.msg[2] = servoId;
           buf = servos.getMaxTorque( servoId );
           response.msg[3] = buf / 0x100;    // [MSB] couple max
@@ -206,7 +196,7 @@ void loop() {
 
       // Gestion couple
       case 0x10 :     // Demande couple
-          response.msg[1] = 0x0D;           // Commande retour couple
+          response.msg[1] = 0x11;           // Commande retour couple
           response.msg[2] = servoId;
           buf = servos.getTorque( servoId );
           response.msg[3] = buf / 0x100;    // [MSB] couple
