@@ -50,8 +50,8 @@ class MyServo {
 		
 		unsigned int _targetPosition;
 		unsigned int _position;
-		unsigned int _minPosition = 8000;
-		unsigned int _maxPosition = 32000;
+		unsigned int _minPosition = 0x0001;
+		unsigned int _maxPosition = 0xFFFF;
 		
 		unsigned int _speed = 500;
 		unsigned int _reverseSpeed = 100;
