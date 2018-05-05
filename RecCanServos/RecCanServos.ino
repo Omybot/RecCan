@@ -20,28 +20,6 @@ struct canFrame{
   unsigned char msg[8];
 };
 
-// Stockage des trames
-volatile MyQueue<canFrame> framesFromCAN( 5 );              // Pile pour stocker les messages provenant du bus CAN
-volatile MyQueue<canFrame> framesToCAN( 5 );                // Pile pour stocker les messages à envoyer sur le bus CAN
-
-// Fonction déclenchée lors reception des trames
-void MCP2515_ISR(){
-  while (CAN_MSGAVAIL == CAN.checkReceive()){
-    canFrame f;
-    CAN.readMsgBuf( &f.size, f.msg );
-    f.id = CAN.getCanId();
-    framesFromCAN.push( f );                                // Stockage du message provenant du bus CAN
-  }
-}
-
-// Envoi de la dernière trame de la queue
-void handleFramesToCAN(){
-  if( framesToCAN.count() > 0 ){
-    canFrame f = framesToCAN.pop();
-    CAN.sendMsgBuf( f.id, 0, f.size, f.msg );               // Envoi du message sur le bus CAN
-  }
-}
-
 /////////////////////////////////
 // Gestion des servos
 /////////////////////////////////
@@ -54,7 +32,6 @@ MyServoHandler servos;
 ISR(TIMER1_COMPA_vect){ 
   servos.timer1Interrupt(); }
 ISR(TIMER2_COMPA_vect){ 
-  handleFramesToCAN();
   servos.timer2Interrupt(); 
 }
 
@@ -71,9 +48,6 @@ void setup() {
   // Initialisation CAN
   while (CAN_OK != CAN.begin(CAN_500KBPS)){ delay(10); }
 
-  // Fonction d'interruption quand récéption trame bus CAN
-  attachInterrupt(0, MCP2515_ISR, FALLING);
-
   // Filtre pour ne prendre en compte que les trames désirées
   CAN.init_Mask(0, 0, 0x7ff); 
   CAN.init_Mask(1, 0, 0x7ff); 
@@ -86,9 +60,11 @@ void setup() {
 /////////////////////////////////
 void loop() {
   
-  if( !framesFromCAN.isEmpty() ){                             // Test si des trames ont été recues
-
-    volatile canFrame f = framesFromCAN.pop();                // Dépilage de la derniere trame
+  if( CAN_MSGAVAIL == CAN.checkReceive() ){                             // Test si des trames ont été recues
+    
+    canFrame f;
+    CAN.readMsgBuf( &f.size, f.msg );
+    f.id = CAN.getCanId();
     
     byte frameNumber = f.msg[0];
     byte command = f.msg[1];
@@ -115,7 +91,7 @@ void loop() {
       case 0x03 :     // Envoi position cible
           buf = f.msg[3] * 0x100 + f.msg[4];
           servos.setPosition( servoId, buf );
-          response.msg[1] = 0x02;           // Commande retour position
+          response.msg[1] = 0x03;           // Copie
           response.msg[2] = servoId;
           buf = servos.getPosition( servoId );
           response.msg[3] = buf / 0x100;    // [MSB] position
@@ -209,7 +185,8 @@ void loop() {
     for( int i=0; i<7; i++ ) response.msg[7] ^= response.msg[i];
     
     // Retour réponse
-    framesToCAN.push( response );
+    //if( response.id != 0 )
+    CAN.sendMsgBuf( response.id, 0, response.size, response.msg );               // Envoi du message sur le bus CAN
     
   }
 
