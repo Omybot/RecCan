@@ -1,87 +1,56 @@
 #include <mcp_can.h>
-#include <MyQueue.h>
 
-/////////////////////////////////
-// Gestion bus CAN
-/////////////////////////////////
+#define SPI_CS_PIN 8
+MCP_CAN CAN(SPI_CS_PIN);
 
-  #define SPI_CS_PIN 8
-  MCP_CAN CAN(SPI_CS_PIN);
-  
-  // Déclaration structure pour une trame
-  struct canFrame{
-    unsigned int id;
-    unsigned char size;
-    unsigned char msg[8];
-  };
+// Déclaration structure pour une trame
+struct canFrame{
+  unsigned int id;
+  unsigned char size;
+  unsigned char msg[8];
+};
 
-  // Stockage des trames
-  MyQueue<canFrame> framesToCAN( 10 );                    // Pile de trames a envoyer
+canFrame f;
 
-  // Fonction d'interruption MCP2515 -> Nouveau message recu
-  void MCP2515_ISR(){
-    while( CAN_MSGAVAIL == CAN.checkReceive() ){          // Tant que des messages sont disponibles
-      canFrame f;
-      CAN.readMsgBuf( &f.size, f.msg );                   // Récupération taille du message et message
-      f.id = CAN.getCanId();                              // Récupération id de la trame
-      sendFrameToUART( f );                               // Envoi sur UART
-    }
-  }
-  
-/////////////////////////////////
-// Fin Gestion bus CAN
-/////////////////////////////////
+byte txBuf[10];
+byte rxBuf[10];
+int rxBufIndex = 0;
 
-/////////////////////////////////
-// Gestion UART
-/////////////////////////////////
-
-  byte rxBuf[10];
-  int rxBufIndex = 0;
-  
-  // Envoi d'une trame sur le port Série
-  void sendFrameToUART( canFrame f ){
-    
-    byte txBuf[10] = {0,0,0,0,0,0,0,0,0,0};
-  
-    // Préparation des données
-    txBuf[0] = f.id / 0x100;
-    txBuf[1] = f.id % 0x100;
-    for( int i = 0; i<f.size; i++ )
-      txBuf[i+2] = f.msg[i];
-  
-    // Envoi sur port de 10 octets (2 pour l'id + 8 pour le message)
-    for( int k=0; k<10; k++ )
-      Serial.write( txBuf[k] );
-    
-  }
-
-/////////////////////////////////
-// Fin Gestion UART
-/////////////////////////////////
-
-/////////////////////////////////
-// SETUP
-/////////////////////////////////
 void setup() {
-
+  
   Serial.begin(19200);
   while (CAN_OK != CAN.begin(CAN_500KBPS)) delay(10);     // Initialisation bus CAN
-  attachInterrupt(0, MCP2515_ISR, FALLING);               // Fonction d'interruption quand récéption trame bus CAN
 
 }
 
-/////////////////////////////////
-// LOOP
-/////////////////////////////////
 void loop() {
+
+  // CAN -> UART
+  if( CAN_MSGAVAIL == CAN.checkReceive() ){                             // Test si des trames ont été recues
+    
+    CAN.readMsgBuf( &f.size, f.msg );
+    f.id = CAN.getCanId();
+    
+    txBuf[0] = f.id / 0x100;
+    txBuf[1] = f.id % 0x100;
+    
+    for( int i = 0; i<f.size; i++ )
+      txBuf[i+2] = f.msg[i];
+      
+    for( int j = f.size; j<10; j++ )
+      txBuf[j+2] = f.msg[j];
+      
+    for( int k=0; k<10; k++ )                     // Envoi sur port de 10 octets (2 pour l'id + 8 pour le message)
+      Serial.write( txBuf[k] );
+
+  }
 
   // UART -> CAN
   if( Serial.available() ){
     
     rxBuf[ rxBufIndex++ ] = Serial.read();         // Récéption des octets 1 par 1
     
-    if( rxBufIndex == 10 ){                               // 10 octets correspond à une trame complete
+    if( rxBufIndex == 10 ){                        // 10 octets correspond à une trame complete
       rxBufIndex = 0;
 
       // Création trame CAN
@@ -96,8 +65,6 @@ void loop() {
       CAN.sendMsgBuf( f.id, 0, f.size, f.msg );
       
     }
-    
   }
-  
-}
 
+}
