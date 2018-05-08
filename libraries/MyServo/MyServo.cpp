@@ -34,7 +34,8 @@ unsigned int MyServo::getMaxPosition(){
 	
 void MyServo::setPosition( unsigned int position ){
 	
-	if( position < _minPosition ) 		_position = _minPosition;
+	if( position == 0 ) 				_position = position;		// Force la desactivation du servo avec le code 0
+	else if( position < _minPosition ) 	_position = _minPosition;
 	else if( position > _maxPosition ) 	_position = _maxPosition;
 	else 								_position = position;
 	_targetPosition = _position;

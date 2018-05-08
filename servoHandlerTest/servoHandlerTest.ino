@@ -11,12 +11,12 @@ void setup() {
 
   servos.attach();
 
-  servos.setMinPosition( 0, 10000 );
-  servos.setMaxPosition( 0, 30000 );
+  //servos.setMinPosition( 0, 10000 );
+  //servos.setMaxPosition( 0, 30000 );
   
-  servos.setMinPosition( 1, 10000 );
-  servos.setMaxPosition( 1, 30000 );
-  servos.setMaxTorque( 1, 75 );
+//  servos.setMinPosition( 1, 10000 );
+//  servos.setMaxPosition( 1, 30000 );
+//  servos.setMaxTorque( 1, 75 );
 
 }
 
@@ -34,16 +34,16 @@ void loop(){
       
       servos.setPosition( 0, 10000 );
       
-      servos.setSpeed( 1, 300 );
-      servos.setTargetPosition( 1, 10000 );
+//      servos.setSpeed( 1, 300 );
+//      servos.setTargetPosition( 1, 10000 );
       
     } else {
       dir = true;
       
-      servos.setPosition( 0, 30000 );
+      servos.setPosition( 0, 0 );
       
-      servos.setSpeed( 1, 150 );
-      servos.setTargetPosition( 1, 30000 );
+//      servos.setSpeed( 1, 150 );
+//      servos.setTargetPosition( 1, 30000 );
     }
     
   }

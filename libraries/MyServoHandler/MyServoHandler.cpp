@@ -20,6 +20,7 @@ void MyServoHandler::attach(){
 
 void MyServoHandler::timer1Interrupt(){
 	_servos[_currentServo].setOutputLow();
+	TCCR1B &= 0b11111000; 							// Arret du timer
 }
 
 void MyServoHandler::timer2Interrupt(){
