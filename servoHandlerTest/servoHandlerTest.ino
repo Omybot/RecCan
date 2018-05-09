@@ -10,7 +10,11 @@ void setup() {
   Serial.begin(115200);
 
   servos.attach();
-
+  
+  servos.setMinPosition( 0, 10000 );
+  servos.setMaxPosition( 0, 30000 );
+  
+  
   //servos.setMinPosition( 0, 10000 );
   //servos.setMaxPosition( 0, 30000 );
   
@@ -21,7 +25,7 @@ void setup() {
 }
 
 unsigned long time;
-int stepTime = 2000;
+int stepTime = 1000;
 bool dir;
 
 void loop(){
@@ -33,6 +37,7 @@ void loop(){
       dir = false;
       
       servos.setPosition( 0, 10000 );
+      servos.setPosition( 1, 10000 );
       
 //      servos.setSpeed( 1, 300 );
 //      servos.setTargetPosition( 1, 10000 );
@@ -41,6 +46,7 @@ void loop(){
       dir = true;
       
       servos.setPosition( 0, 0 );
+      servos.setPosition( 1, 20000 );
       
 //      servos.setSpeed( 1, 150 );
 //      servos.setTargetPosition( 1, 30000 );

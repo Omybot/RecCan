@@ -8,7 +8,7 @@
 // Gestion bus CAN
 /////////////////////////////////
 
-#define CAN_ID  0
+#define CAN_ID  1
 
 #define SPI_CS_PIN 8
 MCP_CAN CAN(SPI_CS_PIN);
