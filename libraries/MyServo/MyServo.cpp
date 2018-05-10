@@ -21,7 +21,20 @@ void MyServo::attach( int outputPin, int analogPin ){
 }
 
 ////////////////////////////////////////
-// Gestion position
+// Gestion position (déplacement direct)
+////////////////////////////////////////
+
+void MyServo::setPosition( float position ){
+	_targetPosition = position;
+	_position = position;
+}
+
+float MyServo::getPosition(){
+	return _position;
+}
+
+////////////////////////////////////////
+// Gestion position (déplacement avec param vitesse et accel)
 ////////////////////////////////////////
 
 void MyServo::setTargetPosition( float position ){
@@ -33,11 +46,16 @@ float MyServo::getTargetPosition(){
 	return _targetPosition;
 }
 
-float MyServo::getPosition(){
-	return _position;
-}
+////////////////////////////////////////
+// Routine de calcul position suivante (toutes les 5 ms)
+////////////////////////////////////////
 
 float MyServo::getNextPosition(){
+	
+	if( _targetPosition == 0 ){
+		_position = 0;
+		return _position;
+	}
 	
 	// Calcul de la direction
 	float error = _targetPosition - _position;			// Calcul de l'erreur de position

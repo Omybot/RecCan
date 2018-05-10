@@ -16,7 +16,7 @@ void setup() {
 
   servos.setMaxSpeed( 0, 300 );
 
-  servos.setAccel( 0, 10 );
+  servos.setAccel( 0, 200 );
 
 }
 
@@ -36,13 +36,15 @@ void loop(){
       dir = false;
 
       Serial.println("setpos 10000");
-      servos.setTargetPosition( 0, 10000 );
+      //servos.setTargetPosition( 0, 10000 );
+      servos.setTrajectory( 0, 10000, 600, 10 );
       
     } else {
       dir = true;
       
       Serial.println("setpos 30000");
-      servos.setTargetPosition( 0, 30000 );
+      //servos.setPosition( 0, 30000 );
+      servos.setTrajectory( 0, 30000, 2000, 200 );
       
     }
     

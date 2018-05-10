@@ -39,6 +39,14 @@ void MyServoHandler::timer2Interrupt(){
 // Gestion position
 ////////////////////////////////////////
 
+void MyServoHandler::setPosition( byte servoNumber, float target ){
+	_servos[servoNumber].setPosition( target );
+}
+
+float MyServoHandler::getPosition( byte servoNumber ){
+	return _servos[servoNumber].getPosition();
+}
+
 void MyServoHandler::setTargetPosition( byte servoNumber, float position ){
 	_servos[servoNumber].setTargetPosition( position );
 }
@@ -47,9 +55,6 @@ float MyServoHandler::getTargetPosition( byte servoNumber ){
 	return _servos[servoNumber].getTargetPosition();
 }
 
-float MyServoHandler::getPosition( byte servoNumber ){
-	return _servos[servoNumber].getPosition();
-}
 
 ////////////////////////////////////////
 // Gestion vitesse
@@ -68,7 +73,7 @@ float MyServoHandler::getSpeed( byte servoNumber ){
 }
 
 ////////////////////////////////////////
-// Gestion vitesse
+// Gestion acceleration
 ////////////////////////////////////////
 
 void MyServoHandler::setAccel( byte servoNumber, float accel ){
@@ -79,6 +84,16 @@ float MyServoHandler::getAccel( byte servoNumber ){
 	return _servos[servoNumber].getAccel();
 }
 
+////////////////////////////////////////
+// Gestion trajectoires
+////////////////////////////////////////
+
+void MyServoHandler::setTrajectory( byte servoNumber, float targetPosition, float maxSpeed, float accel ){
+	_servos[servoNumber].setMaxSpeed(maxSpeed);
+	_servos[servoNumber].setAccel(accel);
+	_servos[servoNumber].setTargetPosition( targetPosition );
+	
+}
 
 ////////////////////////////////////////
 // Private

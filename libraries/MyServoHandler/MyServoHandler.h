@@ -18,10 +18,13 @@ class MyServoHandler {
 		void timer1Interrupt();
 		void timer2Interrupt();
 		
-		// Gestion position
+		// Gestion position (déplacement direct)
+		void setPosition( byte servoNumber, float target );
+		float getPosition( byte servoNumber );
+		
+		// Gestion position (déplacement avec acceleration et vitesse)
 		void setTargetPosition( byte servoNumber, float position );
 		float getTargetPosition( byte servoNumber );
-		float getPosition( byte servoNumber );
 		
 		// Gestion de la vitesse
 		void setMaxSpeed( byte servoNumber, float maxSpeed );
@@ -31,6 +34,9 @@ class MyServoHandler {
 		// Gestion de l'acceleration
 		void setAccel( byte servoNumber, float accel );
 		float getAccel( byte servoNumber );
+		
+		// Gestion des trajectoires
+		void setTrajectory( byte servoNumber, float targetPosition, float maxSpeed, float accel );
 		
 		
 	private :

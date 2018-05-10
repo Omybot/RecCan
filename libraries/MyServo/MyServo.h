@@ -13,10 +13,15 @@ class MyServo {
 		// Initialisation
 		void attach( int outputPin, int analogPin );
 		
-		// Gestion position
+		// Gestion position (déplacement direct)
+		void setPosition( float position );
+		float getPosition();
+		
+		// Gestion position (déplacement avec param vitesse et accel)
 		void setTargetPosition( float position );
 		float getTargetPosition();
-		float getPosition();
+		
+		// Routine de calcul position suivante (toutes les 5 ms)
 		float getNextPosition();
 		
 		// Gestion vitesse
