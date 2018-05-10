@@ -10,23 +10,17 @@ void setup() {
   Serial.begin(115200);
 
   servos.attach();
-  
-  servos.setMinPosition( 0, 10000 );
-  servos.setMaxPosition( 0, 30000 );
-  
-  
-  //servos.setMinPosition( 0, 10000 );
-  //servos.setMaxPosition( 0, 30000 );
-  
-//  servos.setMinPosition( 1, 10000 );
-//  servos.setMaxPosition( 1, 30000 );
-//  servos.setMaxTorque( 1, 75 );
+
+  servos.setSpeed( 0, 300 );
 
 }
 
 unsigned long time;
 int stepTime = 1000;
 bool dir;
+
+unsigned long time2;
+int stepTime2 = 100;
 
 void loop(){
 
@@ -35,41 +29,28 @@ void loop(){
     
     if( dir ){
       dir = false;
-      
+
+      Serial.println("setpos 10000");
       servos.setPosition( 0, 10000 );
-      servos.setPosition( 1, 10000 );
-      
-//      servos.setSpeed( 1, 300 );
-//      servos.setTargetPosition( 1, 10000 );
       
     } else {
       dir = true;
       
-      servos.setPosition( 0, 0 );
-      servos.setPosition( 1, 20000 );
+      Serial.println("setpos 30000");
+      servos.setPosition( 0, 30000 );
       
-//      servos.setSpeed( 1, 150 );
-//      servos.setTargetPosition( 1, 30000 );
     }
     
   }
   
-  Serial.print( servos.getPosition(0) );
-  Serial.print( "\t" );
-  Serial.print( servos.getTargetPosition(0) );
-  Serial.print( "\t" );
-  Serial.print( servos.getTorque(0) );
-  Serial.print( "\t" );
-  Serial.print( servos.getSpeed(0) );
-  Serial.print( "\t" );
-  Serial.print( servos.getPosition(1) );
-  Serial.print( "\t" );
-  Serial.print( servos.getTargetPosition(1) );
-  Serial.print( "\t" );
-  Serial.print( servos.getTorque(1) );
-  Serial.print( "\t" );
-  Serial.print( servos.getSpeed(1) );
+  if( millis() > time2 + stepTime2 ){
+    time2 += stepTime2;
+    
+    Serial.print( servos.getPosition(0) );
+    Serial.print( "\t" );
+    Serial.print( servos.getSpeed(0) );
     Serial.println();
-    delay(50);
+    
+  }
 
 }

@@ -14,28 +14,17 @@ class MyServo {
 		void attach( int outputPin, int analogPin );
 		
 		// Gestion position
-		void setPosition( unsigned int position );
+		void setPosition( float position );
+		float getPosition();
+		float getNextPosition();
 		
-		void setMinPosition( unsigned int min );
-		unsigned int getMinPosition();
-		void setMaxPosition( unsigned int max );
-		unsigned int getMaxPosition();
+		// Gestion vitesse
+		void setSpeed( float speed );
+		float getSpeed();
 		
-		unsigned int getPosition();
-		unsigned int getNextPosition();
-		
-		void setTargetPosition( unsigned int target );
-		unsigned int getTargetPosition();
-		
-		// Gestion de la vitesse
-		void setSpeed( unsigned int speed );
-		unsigned int getSpeed();
-		
-		// Gestion couple
-		void setMaxTorque( unsigned int maxTorque );
-		unsigned int getMaxTorque();
-		unsigned int getTorque();
-		void updateTorque();
+		// Gestion vitesse
+		void setAccel( float accel );
+		float getAccel();
 		
 		// Gestion pin de sortie
 		void setOutputHigh();
@@ -46,18 +35,11 @@ class MyServo {
 		int _outputPin;
 		int _analogPin;
 		
-		int _direction;
+		float _targetPosition;
+		float _position;
 		
-		unsigned int _targetPosition;
-		unsigned int _position;
-		unsigned int _minPosition = 0;
-		unsigned int _maxPosition = 0xFFFF;
-		
-		unsigned int _speed = 500;
-		unsigned int _reverseSpeed = 100;
-		
-		unsigned int _maxTorque = 1000;
-		int _torque;
+		float _speed = 0xFFFF;
+		float _accel = 0xFFFF;
 		
 };
 

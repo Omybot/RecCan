@@ -6,6 +6,10 @@ MyServoHandler::MyServoHandler(){
 MyServoHandler::~MyServoHandler(){
 }
 
+////////////////////////////////////////
+// Gestion Initialisation
+////////////////////////////////////////
+
 void MyServoHandler::attach(){
 	
 	_servos[0].attach( 10, A0 );
@@ -18,6 +22,10 @@ void MyServoHandler::attach(){
 	
 }
 
+////////////////////////////////////////
+// Gestion des interruptions
+////////////////////////////////////////
+
 void MyServoHandler::timer1Interrupt(){
 	_servos[_currentServo].setOutputLow();
 	TCCR1B &= 0b11111000; 							// Arret du timer
@@ -25,60 +33,49 @@ void MyServoHandler::timer1Interrupt(){
 
 void MyServoHandler::timer2Interrupt(){
 	handleNextServo();
-	_servos[_currentServo].updateTorque();
 }
 
-void MyServoHandler::setMinPosition( byte servoNumber, unsigned int min ){
-	_servos[servoNumber].setMinPosition( min );
-}
-	
-unsigned int MyServoHandler::getMinPosition( byte servoNumber ){
-	return _servos[servoNumber].getMinPosition( );
-}
+////////////////////////////////////////
+// Gestion position
+////////////////////////////////////////
 
-void MyServoHandler::setMaxPosition( byte servoNumber, unsigned int max ){
-	_servos[servoNumber].setMaxPosition( max );
-}
-	
-unsigned int MyServoHandler::getMaxPosition( byte servoNumber ){
-	return _servos[servoNumber].getMaxPosition();
-}
-
-void MyServoHandler::setPosition( byte servoNumber, unsigned int position ){
+void MyServoHandler::setPosition( byte servoNumber, float position ){
 	_servos[servoNumber].setPosition( position );
 }
 
-unsigned int MyServoHandler::getPosition( byte servoNumber ){
+float MyServoHandler::getPosition( byte servoNumber ){
 	return _servos[servoNumber].getPosition();
 }
 
-void MyServoHandler::setTargetPosition( byte servoNumber, unsigned int target ){
-	_servos[servoNumber].setTargetPosition( target );
-}
+////////////////////////////////////////
+// Gestion vitesse
+////////////////////////////////////////
 
-unsigned int MyServoHandler::getTargetPosition( byte servoNumber ){
-	return _servos[servoNumber].getTargetPosition();
-}
-
-void MyServoHandler::setSpeed( byte servoNumber, unsigned int speed ){
+void MyServoHandler::setSpeed( byte servoNumber, float speed ){
 	_servos[servoNumber].setSpeed(speed);
 }
 
-unsigned int MyServoHandler::getSpeed( byte servoNumber ){
+float MyServoHandler::getSpeed( byte servoNumber ){
 	return _servos[servoNumber].getSpeed();
 }
 
-void MyServoHandler::setMaxTorque( byte servoNumber, unsigned int maxTorque ){
-	_servos[servoNumber].setMaxTorque(maxTorque);
+////////////////////////////////////////
+// Gestion vitesse
+////////////////////////////////////////
+
+void MyServoHandler::setAccel( byte servoNumber, float accel ){
+	_servos[servoNumber].setAccel(accel);
 }
 
-unsigned int MyServoHandler::getMaxTorque( byte servoNumber ){
-	return _servos[servoNumber].getMaxTorque();
+float MyServoHandler::getAccel( byte servoNumber ){
+	return _servos[servoNumber].getAccel();
 }
 
-unsigned int MyServoHandler::getTorque( byte servoNumber ){
-	return _servos[servoNumber].getTorque();
-}
+
+////////////////////////////////////////
+// Private
+////////////////////////////////////////
+
 
 void MyServoHandler::initTimer1(){
 	noInterrupts();				// disable all interrupts
@@ -90,7 +87,7 @@ void MyServoHandler::initTimer1(){
 	interrupts(); 
 }
 
-void MyServoHandler::rearmTimer1( unsigned int code ){
+void MyServoHandler::rearmTimer1( float code ){
 	OCR1A = code;				// Compare match register (15999+1)/16MHz = 1ms
 	TCNT1 = 0;					// Remise à zéro du compteur
 	TCCR1B |= (1 << CS10);		// Prescaler = 1 -> fclk = 16MHz (62,5ns)
@@ -110,14 +107,13 @@ void MyServoHandler::initTimer2(){
 	interrupts();  
 }
 
-
 void MyServoHandler::handleNextServo(){
 	
 	// Determine le servo suivant
 	_currentServo = (_currentServo+1) % 4;
 	
 	// Calcul la nouvelle position
-	unsigned int newPos = _servos[_currentServo].getNextPosition();
+	float newPos = _servos[_currentServo].getNextPosition();
 	
 	if( newPos != 0 ){
 		rearmTimer1( newPos );						// Timer1 comme chronometre pour compter temps sortie servo état haut
