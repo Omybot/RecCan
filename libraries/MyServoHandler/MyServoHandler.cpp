@@ -39,8 +39,12 @@ void MyServoHandler::timer2Interrupt(){
 // Gestion position
 ////////////////////////////////////////
 
-void MyServoHandler::setPosition( byte servoNumber, float position ){
-	_servos[servoNumber].setPosition( position );
+void MyServoHandler::setTargetPosition( byte servoNumber, float position ){
+	_servos[servoNumber].setTargetPosition( position );
+}
+
+float MyServoHandler::getTargetPosition( byte servoNumber ){
+	return _servos[servoNumber].getTargetPosition();
 }
 
 float MyServoHandler::getPosition( byte servoNumber ){
@@ -51,8 +55,12 @@ float MyServoHandler::getPosition( byte servoNumber ){
 // Gestion vitesse
 ////////////////////////////////////////
 
-void MyServoHandler::setSpeed( byte servoNumber, float speed ){
-	_servos[servoNumber].setSpeed(speed);
+void MyServoHandler::setMaxSpeed( byte servoNumber, float maxSpeed ){
+	_servos[servoNumber].setMaxSpeed(maxSpeed);
+}
+
+float MyServoHandler::getMaxSpeed( byte servoNumber ){
+	return _servos[servoNumber].getMaxSpeed();
 }
 
 float MyServoHandler::getSpeed( byte servoNumber ){

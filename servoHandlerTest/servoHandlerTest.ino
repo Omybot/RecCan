@@ -11,12 +11,17 @@ void setup() {
 
   servos.attach();
 
-  servos.setSpeed( 0, 300 );
+  servos.setTargetPosition( 0, 15000 );
+  delay(1000);
+
+  servos.setMaxSpeed( 0, 300 );
+
+  servos.setAccel( 0, 10 );
 
 }
 
 unsigned long time;
-int stepTime = 1000;
+int stepTime = 2000;
 bool dir;
 
 unsigned long time2;
@@ -31,13 +36,13 @@ void loop(){
       dir = false;
 
       Serial.println("setpos 10000");
-      servos.setPosition( 0, 10000 );
+      servos.setTargetPosition( 0, 10000 );
       
     } else {
       dir = true;
       
       Serial.println("setpos 30000");
-      servos.setPosition( 0, 30000 );
+      servos.setTargetPosition( 0, 30000 );
       
     }
     
@@ -46,9 +51,13 @@ void loop(){
   if( millis() > time2 + stepTime2 ){
     time2 += stepTime2;
     
-    Serial.print( servos.getPosition(0) );
+    Serial.print( servos.getPosition(0) , 0);
+    Serial.print( "/" );
+    Serial.print( servos.getTargetPosition(0) , 0);
     Serial.print( "\t" );
-    Serial.print( servos.getSpeed(0) );
+    Serial.print( servos.getSpeed(0) , 0 );
+    Serial.print( "/" );
+    Serial.print( servos.getMaxSpeed(0) , 0 );
     Serial.println();
     
   }

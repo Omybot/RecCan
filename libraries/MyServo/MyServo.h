@@ -14,12 +14,14 @@ class MyServo {
 		void attach( int outputPin, int analogPin );
 		
 		// Gestion position
-		void setPosition( float position );
+		void setTargetPosition( float position );
+		float getTargetPosition();
 		float getPosition();
 		float getNextPosition();
 		
 		// Gestion vitesse
-		void setSpeed( float speed );
+		void setMaxSpeed( float maxSpeed );
+		float getMaxSpeed();
 		float getSpeed();
 		
 		// Gestion vitesse
@@ -38,7 +40,8 @@ class MyServo {
 		float _targetPosition;
 		float _position;
 		
-		float _speed = 0xFFFF;
+		float _maxSpeed = 0xFFFF;
+		float _speed = 0;
 		float _accel = 0xFFFF;
 		
 };

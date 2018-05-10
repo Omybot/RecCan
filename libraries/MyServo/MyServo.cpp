@@ -24,14 +24,17 @@ void MyServo::attach( int outputPin, int analogPin ){
 // Gestion position
 ////////////////////////////////////////
 
-void MyServo::setPosition( float position ){
-	
+void MyServo::setTargetPosition( float position ){
 	_targetPosition = position;
-	
+	_speed = 0;
+}
+
+float MyServo::getTargetPosition(){
+	return _targetPosition;
 }
 
 float MyServo::getPosition(){
-	return _targetPosition;
+	return _position;
 }
 
 float MyServo::getNextPosition(){
@@ -47,6 +50,9 @@ float MyServo::getNextPosition(){
 		if( _position < _targetPosition ) _position = _targetPosition;
 	}
 	
+	_speed += _accel;									// Calcul nouvelle vitesse
+	if( _speed > _maxSpeed ) _speed = _maxSpeed;		// Limite de vitesse
+	
 	return _position;
 	
 }
@@ -55,8 +61,12 @@ float MyServo::getNextPosition(){
 // Gestion vitesse
 ////////////////////////////////////////
 
-void MyServo::setSpeed( float speed ){
-	_speed = speed;
+void MyServo::setMaxSpeed( float maxSpeed ){
+	_maxSpeed = maxSpeed;
+}
+
+float MyServo::getMaxSpeed(){
+	return _maxSpeed;
 }
 
 float MyServo::getSpeed(){

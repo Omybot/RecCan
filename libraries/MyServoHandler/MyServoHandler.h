@@ -19,11 +19,13 @@ class MyServoHandler {
 		void timer2Interrupt();
 		
 		// Gestion position
-		void setPosition( byte servoNumber, float position );
+		void setTargetPosition( byte servoNumber, float position );
+		float getTargetPosition( byte servoNumber );
 		float getPosition( byte servoNumber );
 		
 		// Gestion de la vitesse
-		void setSpeed( byte servoNumber, float speed );
+		void setMaxSpeed( byte servoNumber, float maxSpeed );
+		float getMaxSpeed( byte servoNumber );
 		float getSpeed( byte servoNumber );
 		
 		// Gestion de l'acceleration
