@@ -56,13 +56,16 @@ void loop() {
       // Création trame CAN
       canFrame f;
       f.id = rxBuf[0] * 0x100 + rxBuf[1];
-      f.size = 8;
-      for( int i=0; i<f.size; i++ ){
-        f.msg[i] = rxBuf[i+2];
-      }
 
-      // Envoi sur le bus
-      CAN.sendMsgBuf( f.id, 0, f.size, f.msg );
+      if( f.id != 0 ){
+        f.size = 8;
+        for( int i=0; i<f.size; i++ ){
+          f.msg[i] = rxBuf[i+2];
+        }
+  
+        // Envoi sur le bus
+        CAN.sendMsgBuf( f.id, 0, f.size, f.msg );
+      }
       
     }
   }

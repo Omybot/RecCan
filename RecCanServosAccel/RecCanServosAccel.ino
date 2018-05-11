@@ -8,7 +8,7 @@
 // Gestion bus CAN
 /////////////////////////////////
 
-#define CAN_ID  5
+#define CAN_ID  1
 
 #define SPI_CS_PIN 8
 MCP_CAN CAN(SPI_CS_PIN);
@@ -65,6 +65,8 @@ void loop() {
     canFrame f;
     CAN.readMsgBuf( &f.size, f.msg );
     f.id = CAN.getCanId();
+
+    if( f.id == 0 ) return;
     
     byte frameNumber = f.msg[0];
     byte command = f.msg[1];
