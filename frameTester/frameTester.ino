@@ -46,7 +46,7 @@ void loop(){
     for( int i=0; i<8; i++ ) f.msg[i] = 0x00;
 
     if( c == 0x30 ){          // 0 -> position 1E80 -> 7808
-        f.id = 5;
+        f.id = 1;
         f.msg[0] = 0xFF;
         f.msg[1] = 0x03;
         f.msg[2] = 0x00;
@@ -56,7 +56,7 @@ void loop(){
         f.msg[6] = 0x00;
         f.msg[7] = 0x00;
     } else if( c == 0x31 ){   // 1 -> position 7D00 -> 32000
-        f.id = 5;
+        f.id = 1;
         f.msg[0] = 0xFF;
         f.msg[1] = 0x03;
         f.msg[2] = 0x00;
@@ -66,7 +66,7 @@ void loop(){
         f.msg[6] = 0x00;
         f.msg[7] = 0x00;
     } else if( c == 0x32 ){   // 2 -> trajectoire pos 7000 vmax 600 accel 200
-        f.id = 5;
+        f.id = 1;
         f.msg[0] = 0xFF;
         f.msg[1] = 0x16;
         f.msg[2] = 0x00;
@@ -76,7 +76,7 @@ void loop(){
         f.msg[6] = 0x58;
         f.msg[7] = 0xC8;
     } else if( c == 0x33 ){   // 3 -> trajectoire pos 32000 vmax 600 accel 200
-        f.id = 5;
+        f.id = 1;
         f.msg[0] = 0xFF;
         f.msg[1] = 0x16;
         f.msg[2] = 0x00;
@@ -86,7 +86,7 @@ void loop(){
         f.msg[6] = 0x58;
         f.msg[7] = 0xC8;
     } else if( c == 0x34 ){   // 3 -> trajectoire pos 32000 vmax 600 accel 200
-        f.id = 5;
+        f.id = 1;
         f.msg[0] = 0xFF;
         f.msg[1] = 0x03;
         f.msg[2] = 0x00;

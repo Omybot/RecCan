@@ -38,8 +38,15 @@ float MyServo::getPosition(){
 ////////////////////////////////////////
 
 void MyServo::setTargetPosition( float position ){
-	_targetPosition = position;
-	_speed = 0;
+	
+	_targetPosition = position;						// Mise à jour de la valeur position cible
+	_initPosition = _position;						// Enregistrement position initiale
+	
+	_speed = 0;										// Vitesse de départ à zéro
+	
+	
+	//_ticksToDo = _targetPosition - _position;		// Calcul de la distance à parcourir
+	
 }
 
 float MyServo::getTargetPosition(){
@@ -57,19 +64,28 @@ float MyServo::getNextPosition(){
 		return _position;
 	}
 	
-	// Calcul de la direction
-	float error = _targetPosition - _position;			// Calcul de l'erreur de position
-
-	if( error > 0 ){
-		_position += _speed;
-		if( _position > _targetPosition ) _position = _targetPosition;
-	} else if( error < 0 ){
-		_position -= _speed;
-		if( _position < _targetPosition ) _position = _targetPosition;
+	// Calcul de la distance parcourue
+	float distanceToDo = abs( _targetPosition - _position );
+	float traveledDistance = abs( _position - _initPosition );
+	
+	int direction;
+	if( ( _targetPosition - _position ) > 0 ) direction = 1;
+	else if( ( _targetPosition - _position ) < 0 ) direction = -1;
+	else direction = 0;
+	
+	if( traveledDistance >= distanceToDo ){					// Si j'ai parcouru plus de la moitié du chemin
+		if( abs(_accel) >= abs(_speed) ) _speed = _accel;
+		else _speed -= _accel;									// Il faut diminuer la vitesse
+		if( distanceToDo < abs( _speed )) _speed = distanceToDo;
+	} else {
+		_speed += _accel;									// Il faut augmenter la vitesse
 	}
 	
-	_speed += _accel;									// Calcul nouvelle vitesse
-	if( _speed > _maxSpeed ) _speed = _maxSpeed;		// Limite de vitesse
+	// Mise à jour position + verif vmax
+	if( _speed > _maxSpeed ) 
+		_position += _maxSpeed * direction;
+	else 
+		_position += _speed * direction;
 	
 	return _position;
 	

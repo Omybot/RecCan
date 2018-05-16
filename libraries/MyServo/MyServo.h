@@ -44,11 +44,12 @@ class MyServo {
 		
 		float _targetPosition;
 		float _position;
+		float _initPosition;
 		
 		float _maxSpeed = 0xFFFF;
 		float _speed = 0;
 		float _accel = 0xFFFF;
-		
+	
 };
 
 #endif
