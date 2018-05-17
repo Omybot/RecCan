@@ -29,6 +29,7 @@ void MyServoHandler::attach(){
 void MyServoHandler::timer1Interrupt(){
 	_servos[_currentServo].setOutputLow();
 	TCCR1B &= 0b11111000; 							// Arret du timer
+	_servos[_currentServo].updateTorque();			// Mesure du couple
 }
 
 void MyServoHandler::timer2Interrupt(){
@@ -82,6 +83,14 @@ void MyServoHandler::setAccel( byte servoNumber, float accel ){
 
 float MyServoHandler::getAccel( byte servoNumber ){
 	return _servos[servoNumber].getAccel();
+}
+
+////////////////////////////////////////
+// Gestion couple
+////////////////////////////////////////
+
+float MyServoHandler::getTorque( byte servoNumber ){
+	return _servos[servoNumber].getTorque();
 }
 
 ////////////////////////////////////////

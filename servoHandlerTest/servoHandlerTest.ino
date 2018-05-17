@@ -61,6 +61,8 @@ void loop(){
     Serial.print( servos.getSpeed(0) , 0 );
     Serial.print( "/" );
     Serial.print( servos.getMaxSpeed(0) , 0 );
+    Serial.print( "\t" );
+    Serial.print( servos.getTorque(0) , 0 );
     Serial.println();
     
   }
