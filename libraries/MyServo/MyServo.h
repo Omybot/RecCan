@@ -3,6 +3,25 @@
 
 #include <Arduino.h>
 
+enum ServoFunction : byte {
+	PositionAsk = 0x01,
+	PositionResponse = 0x02,
+	PositionSet = 0x03,
+	SpeedAsk = 0x0A,
+	SpeedResponse = 0x0B,
+	SpeedSet = 0x0C,
+	TorqueMaxAsk = 0x0D,
+	TorqueMaxResponse = 0x0E,
+	TorqueMaxSet = 0x0F,
+	TorqueCurrentAsk = 0x10,
+	TorqueCurrentResponse = 0x11,
+	AccelAsk = 0x12,
+	AccelResponse = 0x13,
+	AccelSet = 0x14,
+	TargetSet = 0x15,
+	TrajectorySet = 0x16,
+};
+
 class MyServo {
 	
 	public :

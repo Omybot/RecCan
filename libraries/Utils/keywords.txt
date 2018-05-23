@@ -1,0 +1,15 @@
+#######################################
+# Syntax Coloring Map For This Library
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+# i.e. : ClassName KEYWORD 1
+#######################################
+Utils KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+# i.e. : functionOne KEYWORD2
+#######################################
+

@@ -1,5 +1,15 @@
 #include <MyServoHandler.h>
 
+#define OUT_PIN_SERVO_0 10
+#define OUT_PIN_SERVO_1 9
+#define OUT_PIN_SERVO_2 6
+#define OUT_PIN_SERVO_3 5
+
+#define ANALOG_PIN_SERVO_0 A0
+#define ANALOG_PIN_SERVO_1 A1
+#define ANALOG_PIN_SERVO_2 A2
+#define ANALOG_PIN_SERVO_3 A3
+
 MyServoHandler::MyServoHandler(){
 }
 
@@ -11,15 +21,13 @@ MyServoHandler::~MyServoHandler(){
 ////////////////////////////////////////
 
 void MyServoHandler::attach(){
-	
-	_servos[0].attach( 10, A0 );
-	_servos[1].attach( 9, A1 );
-	_servos[2].attach( 6, A2 );
-	_servos[3].attach( 5, A3 );
+	_servos[0].attach(OUT_PIN_SERVO_0, ANALOG_PIN_SERVO_0);
+	_servos[1].attach(OUT_PIN_SERVO_1, ANALOG_PIN_SERVO_1);
+	_servos[2].attach(OUT_PIN_SERVO_2, ANALOG_PIN_SERVO_2);
+	_servos[3].attach(OUT_PIN_SERVO_3, ANALOG_PIN_SERVO_3);
 	
 	initTimer1();
 	initTimer2();
-	
 }
 
 ////////////////////////////////////////
@@ -92,7 +100,6 @@ void MyServoHandler::setTrajectory( byte servoNumber, float targetPosition, floa
 	_servos[servoNumber].setMaxSpeed(maxSpeed);
 	_servos[servoNumber].setAccel(accel);
 	_servos[servoNumber].setTargetPosition( targetPosition );
-	
 }
 
 ////////////////////////////////////////
