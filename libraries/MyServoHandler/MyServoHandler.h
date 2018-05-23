@@ -35,6 +35,9 @@ class MyServoHandler {
 		void setAccel( byte servoNumber, float accel );
 		float getAccel( byte servoNumber );
 		
+		// Gestion du couple
+		float getTorque( byte servoNumber );
+		
 		// Gestion des trajectoires
 		void setTrajectory( byte servoNumber, float targetPosition, float maxSpeed, float accel );
 		

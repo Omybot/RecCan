@@ -52,6 +52,10 @@ class MyServo {
 		void setAccel( float accel );
 		float getAccel();
 		
+		// Gestion couple
+		float getTorque();
+		void updateTorque();
+		
 		// Gestion pin de sortie
 		void setOutputHigh();
 		void setOutputLow();
@@ -68,6 +72,8 @@ class MyServo {
 		float _maxSpeed = 0xFFFF;
 		float _speed = 0;
 		float _accel = 0xFFFF;
+		
+		float _torque;
 	
 };
 
