@@ -14,8 +14,6 @@ EthernetUDP Udp;                                              // An EthernetUDP 
 uint8_t packetBuffer[13];
 
 void setup() {
-
-  Serial.begin(500000);
   
   CAN.begin(CAN_80KBPS, MCP_8MHz);                                // Initialisation controleur CAN
 
@@ -24,11 +22,7 @@ void setup() {
 
 }
 
-unsigned long tic, toc;
-
 void loop() {
-
-  tic = micros();
   
   while( CAN.checkNewPacket() ){                                  // Tant que packet CAN à lire
     
@@ -45,11 +39,6 @@ void loop() {
     Udp.write(packetBuffer, 13);
     Udp.endPacket();
     
-    toc = micros();
-    Serial.print( "Reception Can + envoi Eth : " );
-    Serial.print( toc - tic );
-    Serial.println( " µs" );
-    
   }
 
   int packetSize = Udp.parsePacket();
@@ -65,16 +54,12 @@ void loop() {
       //if( !success ){
       //  ??? Bus peut etre pas libre ... / Trame toujours en cours d'envoi ... / ???
       //}
+      
     }
     
     Udp.beginPacket(remoteIp, remotePort);                        // Renvoi automatique du packet recu
     Udp.write(packetBuffer, packetSize);
     Udp.endPacket();
-    
-    toc = micros();
-    Serial.print( "Check CAN false + Reception Eth + Envoi CAN + Retour Eth : " );
-    Serial.print( toc - tic );
-    Serial.println( " µs" );
     
   }
 
