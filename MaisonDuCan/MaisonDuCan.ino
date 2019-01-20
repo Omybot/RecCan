@@ -28,9 +28,9 @@ void loop() {
     
     packet p = CAN.getNewPacket();                                // Récupération du packet CAN
     
-    packetBuffer[0] == 0xC5;                                      // Entête packet ETH
-    packetBuffer[1] == 0xA5;
-    packetBuffer[2] == 0x0A;
+    packetBuffer[0] = 0xC5;                                      // Entête packet ETH
+    packetBuffer[1] = 0xA5;
+    packetBuffer[2] = 0x0A;
     packetBuffer[3] = p.id / 0x100;                               // Ajout du packet CAN au buffer
     packetBuffer[4] = p.id % 0x100;
     for( uint8_t i=0; i<8; i++ ) packetBuffer[i+5] = p.msg[i];
