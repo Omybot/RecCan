@@ -1,0 +1,22 @@
+#######################################
+# Syntax Coloring Map For debug_lvc
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+CAN	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+checkNewPacket	KEYWORD2
+getNewPacket	KEYWORD2
+sendPacket	KEYWORD2
+initCANMasksAndFilters	KEYWORD2
+setFilterId	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
