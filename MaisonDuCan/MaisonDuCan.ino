@@ -11,7 +11,7 @@ unsigned int remotePort = 53747;                                  // local port 
 
 EthernetUDP Udp;                                                  // An EthernetUDP instance to let us send and receive packets over UDP
 
-const int canRetryTime = 50;                                      // Temps max d'une tentative de renvoi d'un paquet CAN sur le bus
+const int canRetryTime = 50;                                      // Temps max (en ms) d'une tentative de renvoi d'un paquet CAN sur le bus
 bool canRetryFlag = false;                                        // Flag permettant d'indiquer qu'il faut refaire une tentative d'envoi
 unsigned long canRetryTimeout;                                    // Variable qui permet de stocker le temps à partir duquel il faut abandonner la tentative de renvoi
 canPacket canRetryPacket;                                         // Stockage tampon du packet CAN à renvoyer
