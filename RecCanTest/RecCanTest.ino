@@ -18,7 +18,7 @@ void loop(){
   if( millis() > time + stepTime ){                   // Envoi d'un packet Test à intervalle régulier
     time += stepTime;
 
-    packet pTest;
+    canPacket pTest;
     pTest.id = boardId;
     pTest.msg[0] = millis() / 0x100;
     pTest.msg[1] = millis() % 0x100;
@@ -27,7 +27,7 @@ void loop(){
   }
   
   while( CAN.checkNewPacket() ){                      // Tant que packet CAN à lire
-    packet p = CAN.getNewPacket();                    // Récupération du packet CAN
+    canPacket p = CAN.getNewPacket();                    // Récupération du packet CAN
     CAN.sendPacket( p );                              // Renvoi du packet recu
   }
 

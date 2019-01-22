@@ -6,6 +6,7 @@
 # Datatypes (KEYWORD1)
 #######################################
 CAN	KEYWORD1
+canPacket	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

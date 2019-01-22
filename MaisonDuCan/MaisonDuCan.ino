@@ -14,7 +14,7 @@ EthernetUDP Udp;                                                  // An Ethernet
 const int canRetryTime = 50;                                      // Temps max d'une tentative de renvoi d'un paquet CAN sur le bus
 bool canRetryFlag = false;                                        // Flag permettant d'indiquer qu'il faut refaire une tentative d'envoi
 unsigned long canRetryTimeout;                                    // Variable qui permet de stocker le temps à partir duquel il faut abandonner la tentative de renvoi
-packet canRetryPacket;                                            // Stockage tampon du packet à renvoyer
+canPacket canRetryPacket;                                         // Stockage tampon du packet CAN à renvoyer
 
 // Fonction qui permet d'envoyer un buffer de taille définie sur le réseau Ethernet en UDP
 void sendBufferToEth( uint8_t *udpBuffer, int bufSize ){
@@ -24,7 +24,7 @@ void sendBufferToEth( uint8_t *udpBuffer, int bufSize ){
 }
 
 // Fonction qui permet d'envoyer un paquet CAN ( id sur 2 octets + message de 8 octets ) sur le réseau Ethernet en UDP en ajoutant l'entête des cartes RecCan
-void sendCanPacketToEth( packet p ){
+void sendCanPacketToEth( canPacket p ){
   uint8_t buf[13] = { 0xC5, 0xA5, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
   buf[3] = p.id / 0x100;                                          // Ajout identifiant CAN
   buf[4] = p.id % 0x100;
@@ -45,7 +45,7 @@ void loop() {
 
   // CAN -> ETH
   while( CAN.checkNewPacket() ){                                  // Test si paquets CAN recu   
-    packet p = CAN.getNewPacket();                                // Récupération d'un packet CAN
+    canPacket p = CAN.getNewPacket();                             // Récupération d'un packet CAN
     sendCanPacketToEth( p );                                      // Envoi sur ethernet du packet CAN
   }
 
@@ -68,7 +68,7 @@ void loop() {
       if( udpPacketSize != 13 || udpPacketBuffer[0] != 0xC5 || udpPacketBuffer[1] != 0xA5 || udpPacketBuffer[2] != 0x0A ){ // Test si trame correspond à une demande d'envoi sur le bus CAN
         sendBufferToEth( udpPacketBuffer, udpPacketSize );        // Renvoi du paquet ethernet recu
       } else {
-        packet p;                                                 // Réconstruction du paquet CAN
+        canPacket p;                                              // Réconstruction du paquet CAN
         p.id = udpPacketBuffer[3] * 0x100 + udpPacketBuffer[4];
         for( uint8_t i=0; i<8; i++ ) p.msg[i] = udpPacketBuffer[i+5];
         

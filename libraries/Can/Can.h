@@ -7,14 +7,14 @@
 
 #define SPI_CAN_CS_PIN	10	// Pin du chip select du composant MCP2515
 
-#define	PACKET_SIZE	10	// Taille de chaque packet en octet
+#define	CAN_PACKET_SIZE	10	// Taille de chaque packet en octet
 
 #define MCP_16MHz      1
 #define MCP_8MHz       2
 
-#ifndef packet_struct
-#define packet_struct
-struct packet{
+#ifndef canPacket_struct
+#define canPacket_struct
+struct canPacket{
 	int id = 0;
 	uint8_t msg[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 };
@@ -33,9 +33,9 @@ class CANClass {
 		void begin( uint8_t speed = CAN_80KBPS, uint8_t clock = MCP_16MHz );
 
 		bool checkNewPacket();
-		packet getNewPacket();
+		canPacket getNewPacket();
 
-		uint8_t sendPacket( packet p );
+		uint8_t sendPacket( canPacket p );
 
 		void initCANMasksAndFilters();
 		void setFilterId( uint8_t filterNum, uint16_t filterId );

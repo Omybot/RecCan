@@ -28,12 +28,12 @@ void CANClass::begin( uint8_t speed, uint8_t clock ){
 }
 
 /**
- * \fn void sendPacket( packet p )
+ * \fn void sendPacket( canPacket p )
  * \brief Fonction qui envoi un packet sur le bus CAN
  *
  * tps d'exec < 112 µs (Arduino Uno)
  */
-uint8_t CANClass::sendPacket( packet p ){
+uint8_t CANClass::sendPacket( canPacket p ){
 	return mcpcan.trySendMsgBuf( p.id, 0, 0, 8, p.msg );
 }
 
@@ -51,16 +51,16 @@ bool CANClass::checkNewPacket(){
 }
 
 /**
- * \fn packet getNewPacket()
+ * \fn canPacket getNewPacket()
  * \brief Fonction qui retourne le nouveau packet récupéré
  *
  * tps d'exec < 92 µs (Arduino Uno)
  *
  * \param pBuf : packet récupéré
  */
-packet CANClass::getNewPacket(){
+canPacket CANClass::getNewPacket(){
 
-	packet pBuf;						// Création du packet
+	canPacket pBuf;						// Création du packet
 
 	mcpcan.readMsgBuf(8, pBuf.msg);
 	pBuf.id = mcpcan.getCanId();
