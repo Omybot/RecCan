@@ -6,8 +6,8 @@
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress localIp(192, 168, 1, 173);
 unsigned int localPort = 12315;                                   // local port to listen on
-IPAddress remoteIp(192, 168, 1, 27);
-unsigned int remotePort = 53747;                                  // local port to listen on
+//IPAddress remoteIp(192, 168, 1, 27);
+//unsigned int remotePort = 53747;                                  // local port to listen on
 
 EthernetUDP Udp;                                                  // An EthernetUDP instance to let us send and receive packets over UDP
 
@@ -18,7 +18,8 @@ canPacket canRetryPacket;                                         // Stockage ta
 
 // Fonction qui permet d'envoyer un buffer de taille définie sur le réseau Ethernet en UDP
 void sendBufferToEth( uint8_t *udpBuffer, int bufSize ){
-  Udp.beginPacket(remoteIp, remotePort);
+  //Udp.beginPacket(remoteIp, remotePort);                          // Envoi à l'adresse et port spécifié
+  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());              // L'adresse ip et le port de déstination correspond à la derniere trame ethernet ethernet recue
   Udp.write(udpBuffer, bufSize);
   Udp.endPacket();
 }
