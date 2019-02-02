@@ -25,6 +25,12 @@ void loop(){
     byte command = p.msg[0];
     byte servoId = p.msg[1];
 
+    Serial.println("Nouvelle Reception :");
+    Serial.print( "Command N°" );
+    Serial.print( command );
+    Serial.print( ", ServoID N°" );
+    Serial.println( servoId );
+
     switch( command ){
 
       // Gestion position

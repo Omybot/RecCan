@@ -4,10 +4,10 @@
 #include "Can.h"
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-IPAddress localIp(192, 168, 1, 173);
+IPAddress localIp(192, 168, 1, 175);
 unsigned int localPort = 12315;                                   // local port to listen on
-//IPAddress remoteIp(192, 168, 1, 27);
-//unsigned int remotePort = 53747;                                  // local port to listen on
+IPAddress remoteIp(192, 168, 1, 27);
+unsigned int remotePort = 12325;                                  // local port to listen on
 
 EthernetUDP Udp;                                                  // An EthernetUDP instance to let us send and receive packets over UDP
 
@@ -66,7 +66,7 @@ void loop() {
       uint8_t udpPacketBuffer[13];
       Udp.read(udpPacketBuffer, udpPacketSize);                   // Récupération du packet ethernet recu
   
-      if( udpPacketSize != 13 || udpPacketBuffer[0] != 0xC5 || udpPacketBuffer[1] != 0xA5 || udpPacketBuffer[2] != 0x0A ){ // Test si trame correspond à une demande d'envoi sur le bus CAN
+      if( udpPacketSize != 13 || udpPacketBuffer[0] != 0xC5 || udpPacketBuffer[1] != 0xA4 || udpPacketBuffer[2] != 0x0A ){ // Test si trame correspond à une demande d'envoi sur le bus CAN
         sendBufferToEth( udpPacketBuffer, udpPacketSize );        // Renvoi du paquet ethernet recu
       } else {
         canPacket p;                                              // Réconstruction du paquet CAN
