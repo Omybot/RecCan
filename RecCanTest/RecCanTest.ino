@@ -5,6 +5,8 @@ uint16_t boardId;                                      // Identifiant CAN de la 
 
 unsigned int pos = 12;
 
+byte toto = 1;
+
 void setup(){
 
   Serial.begin( 500000 );
@@ -35,12 +37,12 @@ void loop(){
 
       // Gestion position
       case 3 : {                                      // SetPosition
-          pos = *(int*)&p.msg[2];
+          pos = p.msg[2] * 0x100 + p.msg[3];
       }
       case 1 : {                                      // PositionAsk
-          p.id = 2;
-          byte *ptr = (byte*)&pos;
-          for( int i=0; i<4; i++ ) p.msg[i+2] = ptr[i];
+          p.msg[0] = 2;                               // Retour avec la commande Position Response
+          p.msg[2] = pos >> 8;
+          p.msg[3] = pos & 0xFF;
         break;
       }
       
