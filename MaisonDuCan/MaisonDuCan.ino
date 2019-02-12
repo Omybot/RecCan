@@ -5,6 +5,7 @@
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};                // Adresse mac de la Maison du Can
 IPAddress localIp(192, 168, 1, 15);                               // Adresse ip de la Maison du Can
+IPAddress remoteIp(192, 168, 1, 27);
 unsigned int localPort = 12315;                                   // port sur lequel écouter
 unsigned int remotePort = 12325;                                  // port avec lequel envoyer
 
@@ -51,12 +52,8 @@ void loop() {
     Udp.read(udpPacketBuffer, udpPacketSize);
 
     // Test si trame correspond à une demande d'envoi valide sur le bus CAN
-    if( udpPacketSize != 13 || udpPacketBuffer[0] != udpId || udpPacketBuffer[1] != udpEnvoiCan || udpPacketBuffer[2] != 0x0A ){
-      
-      sendBufferToEth( udpPacketBuffer, udpPacketSize );          // Renvoi de la trame recue
-      
-    } else {
-      
+    if( udpPacketSize == 13 && udpPacketBuffer[0] == udpId && udpPacketBuffer[1] == udpEnvoiCan && udpPacketBuffer[2] == 0x0A ){
+
       // Construction du packet CAN à partir du packet Ethernet recu
       canPacket p;
       p.id = udpPacketBuffer[3] * 0x100 + udpPacketBuffer[4];
@@ -67,12 +64,13 @@ void loop() {
       bool success = false;
       do{
         handleCanPackets();                                       // Lecture des paquets recu avant chaque tentative d'envoi pour être sur de ne pas en rater
-        if( CAN.sendPacket(p) == CAN_OK ){
-          sendBufferToEth( udpPacketBuffer, udpPacketSize );      // Renvoi de la trame recue
-          success = true;
-        }
+        if( CAN.sendPacket(p) == CAN_OK ) success = true;
       } while( (millis() - startTime) < retryCanSendTimeout && !success );
 
+    } else {
+      
+      sendBufferToEth( udpPacketBuffer, udpPacketSize );          // Renvoi de la trame test de connection
+        
     }
     
   }
@@ -93,7 +91,7 @@ void handleCanPackets(){
 
 // Fonction qui permet d'envoyer un buffer de taille définie sur le réseau Ethernet en UDP
 void sendBufferToEth( uint8_t *udpBuffer, int bufSize ){
-  Udp.beginPacket(Udp.remoteIP(), remotePort);                    // Envoi à l'adresse ip du dernier packet recu avec le port spécifié plus haut
+  Udp.beginPacket(remoteIp, remotePort);
   Udp.write(udpBuffer, bufSize);
   Udp.endPacket();
 }
