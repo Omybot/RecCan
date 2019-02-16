@@ -17,12 +17,12 @@ void setup(){
   
   EEPROM.get(0, boardId);                             // Récupération id de la carte
 
-  CAN.begin(CAN_80KBPS, MCP_8MHz);                    // Initialisation controleur CAN
+  CAN.begin(CAN_125KBPS, MCP_8MHz);                    // Initialisation controleur CAN
   CAN.initCANMasksAndFilters();                       // Configuration des filtres pour n'accepter que id = 0
   CAN.setFilterId( 0, boardId );                      // Ajout aux filtre de l'id de la carte
 
   response.id = boardId;                              // Les packet CAN que la carte enverra auront l'id de la carte
-  
+
 }
 
 void loop(){
