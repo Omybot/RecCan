@@ -13,7 +13,7 @@ byte udpId = 0xC5;                                                // Identifiant
 byte udpEnvoiCan = 0xC0;                                          // Commande Udp utilisée pour les envoi CAN
 byte udpReponseCan = 0xC1;                                        // Commande Udp utilisée pour les retours CAN
 
-unsigned int retryCanSendTimeout = 50;                            // Temps max que doit prendre un envoi sur bus CAN
+unsigned int retryCanSendTimeout = 100;                           // Temps max (ms) que doit prendre un envoi sur bus CAN
 
 EthernetUDP Udp;                                                  // An EthernetUDP instance to let us send and receive packets over UDP
 

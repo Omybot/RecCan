@@ -3,14 +3,18 @@
 
 uint16_t boardId;                                     // Identifiant CAN de la carte
 
-unsigned int pos;                                     // Simulation position du servo
-
 unsigned int cptInPackets, cptOutPackets;
 
 unsigned long lastPacketDate;
-unsigned long packetTimeout = 100;                   // Temps max (ms) d'essai d'envoi de message
+unsigned long packetTimeout = 100;                    // Temps max (ms) d'essai d'envoi de message
 
 canPacket response;
+
+// Simulation variables servo
+unsigned int position, positionMin, positionMax;                                
+unsigned int speed;
+unsigned int torqueCurrent, torqueMax;
+unsigned int acceleration;
 
 unsigned long time, stepTime = 500;
 
@@ -59,25 +63,110 @@ void loop(){
 
     switch( command ){
 
-      case 1 : {                                      // PositionAsk
-          response.msg[0] = 2;                        // => PositionResponse
+      case PositionAsk : {
+          response.msg[0] = PositionResponse;
           response.msg[1] = servoId;
-          response.msg[2] = pos >> 8;
-          response.msg[3] = pos & 0xFF;
+          response.msg[2] = position >> 8;
+          response.msg[3] = position & 0xFF;
         break;
       }
       
-      case 3 : {                                      // SetPosition
-          pos = p.msg[2] * 0x100 + p.msg[3];
-          break;
-      }
-
-      case 0xF0 : {                                   // Debug
+      case PositionSet : {
+          position = p.msg[2] * 0x100 + p.msg[3];
           break;
       }
       
-      case 0xF1 : {                                   // Debug Ask
-          response.msg[0] = 0xF2;                     // => DebugResponse
+      case PositionMinAsk : {
+          response.msg[0] = PositionMinResponse;
+          response.msg[1] = servoId;
+          response.msg[2] = positionMin >> 8;
+          response.msg[3] = positionMin & 0xFF;
+        break;
+      }
+      
+      case PositionMinSet : {
+          positionMin = p.msg[2] * 0x100 + p.msg[3];
+          break;
+      }
+      
+      case PositionMaxAsk : {
+          response.msg[0] = PositionMaxResponse;
+          response.msg[1] = servoId;
+          response.msg[2] = positionMax >> 8;
+          response.msg[3] = positionMax & 0xFF;
+        break;
+      }
+      
+      case PositionMaxSet : {
+          positionMax = p.msg[2] * 0x100 + p.msg[3];
+          break;
+      }
+      
+      case SpeedAsk : {
+          response.msg[0] = SpeedResponse;
+          response.msg[1] = servoId;
+          response.msg[2] = speed >> 8;
+          response.msg[3] = speed & 0xFF;
+        break;
+      }
+      
+      case SpeedSet : {
+          speed = p.msg[2] * 0x100 + p.msg[3];
+          break;
+      }
+      
+      case TorqueMaxAsk : {
+          response.msg[0] = TorqueMaxResponse;
+          response.msg[1] = servoId;
+          response.msg[2] = torqueMax >> 8;
+          response.msg[3] = torqueMax & 0xFF;
+        break;
+      }
+      
+      case TorqueMaxSet : {
+          torqueMax = p.msg[2] * 0x100 + p.msg[3];
+          break;
+      }
+      
+      case TorqueCurrentAsk : {
+          response.msg[0] = TorqueCurrentResponse;
+          response.msg[1] = servoId;
+          response.msg[2] = torqueCurrent >> 8;
+          response.msg[3] = torqueCurrent & 0xFF;
+        break;
+      }
+      
+      case AccelerationAsk : {
+          response.msg[0] = AccelerationResponse;
+          response.msg[1] = servoId;
+          response.msg[2] = acceleration >> 8;
+          response.msg[3] = acceleration & 0xFF;
+        break;
+      }
+      
+      case AccelerationSet : {
+          acceleration = p.msg[2] * 0x100 + p.msg[3];
+          break;
+      }
+      
+      case TargetSet : {
+          position = p.msg[2] * 0x100 + p.msg[3];
+          break;
+      }
+      
+      case TrajectorySet : {
+          position = p.msg[2] * 0x100 + p.msg[3];
+          speed = p.msg[4] * 0x100 + p.msg[5];
+          acceleration = p.msg[6] * 0x100 + p.msg[7];
+          break;
+      }
+
+      case Debug : {
+          break;
+      }
+      
+      case DebugAsk : {
+          response.msg[0] = DebugResponse;
           response.msg[1] = servoId;
           response.msg[2] = cptInPackets >> 8;
           response.msg[3] = cptInPackets & 0xFF;

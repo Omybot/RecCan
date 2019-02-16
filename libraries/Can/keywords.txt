@@ -21,3 +21,31 @@ setFilterId	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
+PositionAsk			LITERAL1
+PositionResponse	LITERAL1
+PositionSet			LITERAL1
+PositionMinAsk		LITERAL1
+PositionMinResponse	LITERAL1
+PositionMinSet		LITERAL1
+PositionMaxAsk		LITERAL1
+PositionMaxResponse	LITERAL1
+PositionMaxSet		LITERAL1
+SpeedAsk			LITERAL1
+SpeedResponse		LITERAL1
+SpeedSet			LITERAL1
+TorqueMaxAsk		LITERAL1
+TorqueMaxResponse	LITERAL1
+TorqueMaxSet		LITERAL1
+TorqueCurrentAsk	LITERAL1
+TorqueCurrentResponse	LITERAL1
+AccelerationAsk		LITERAL1
+AccelerationResponse	LITERAL1
+AccelerationSet		LITERAL1
+TargetSet			LITERAL1
+TrajectorySet		LITERAL1
+
+SetScore			LITERAL1
+
+Debug			 	LITERAL1
+DebugAsk			LITERAL1
+DebugResponse		LITERAL1
