@@ -1,11 +1,14 @@
 #include <EEPROM.h>
 #include "Can.h"
 
-uint16_t boardId;                                      // Identifiant CAN de la carte
+uint16_t boardId;                                     // Identifiant CAN de la carte
 
-unsigned int pos;                                      // Simulation position du servo
+unsigned int pos;                                     // Simulation position du servo
 
 unsigned int cptInPackets, cptOutPackets;
+
+unsigned long lastPacketDate;
+unsigned long packetTimeout = 100;                   // Temps max (ms) d'essai d'envoi de message
 
 canPacket response;
 
@@ -17,7 +20,7 @@ void setup(){
   
   EEPROM.get(0, boardId);                             // Récupération id de la carte
 
-  CAN.begin(CAN_125KBPS, MCP_8MHz);                    // Initialisation controleur CAN
+  CAN.begin(CAN_125KBPS, MCP_8MHz);                   // Initialisation controleur CAN
   CAN.initCANMasksAndFilters();                       // Configuration des filtres pour n'accepter que id = 0
   CAN.setFilterId( 0, boardId );                      // Ajout aux filtre de l'id de la carte
 
@@ -40,13 +43,16 @@ void loop(){
     if( CAN.sendPacket( response ) == CAN_OK ){       // Tentative d'envoi
       for( int i=0; i<8; i++ ) response.msg[i] = 0x00;   // Réinitialisation message reponse
       cptOutPackets++;
+    } else if( lastPacketDate > millis() + packetTimeout ){
+      for( int i=0; i<8; i++ ) response.msg[i] = 0x00;   // Réinitialisation message reponse
     }
   }
 
   // Récéption depuis le bus CAN
   if( CAN.checkNewPacket() ){                         // Tant que packet CAN à lire
-    canPacket p = CAN.getNewPacket();                 // Récupération du packet CAN
+    lastPacketDate = millis();
     cptInPackets++;
+    canPacket p = CAN.getNewPacket();                 // Récupération du packet CAN
 
     byte command = p.msg[0];
     byte servoId = p.msg[1];
