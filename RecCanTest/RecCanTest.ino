@@ -1,5 +1,7 @@
 #include <EEPROM.h>
 #include "Can.h"
+#include <MyServoHandler.h>
+#include <MyServo.h>
 
 uint16_t boardId;                                     // Identifiant CAN de la carte
 
@@ -16,11 +18,30 @@ unsigned int speed;
 unsigned int torqueCurrent, torqueMax;
 unsigned int acceleration;
 
+/////////////////////////////////
+// Gestion des servos
+/////////////////////////////////
+
+MyServoHandler servos;
+
+/////////////////////////////////
+// Gestion des interruptions
+/////////////////////////////////
+ISR(TIMER1_COMPA_vect) {
+  servos.timer1Interrupt();
+}
+ISR(TIMER2_COMPA_vect) {
+  servos.timer2Interrupt();
+}
+
 unsigned long time, stepTime = 500;
 
 void setup(){
 
   Serial.begin(500000);
+  
+  // Gestion des pins
+  servos.attach();
   
   EEPROM.get(0, boardId);                             // Récupération id de la carte
 
@@ -66,13 +87,15 @@ void loop(){
       case PositionAsk : {
           response.msg[0] = PositionResponse;
           response.msg[1] = servoId;
+          unsigned int position = servos.getPosition(servoId);
           response.msg[2] = position >> 8;
           response.msg[3] = position & 0xFF;
         break;
       }
       
       case PositionSet : {
-          position = p.msg[2] * 0x100 + p.msg[3];
+          unsigned int newPosition = p.msg[2] * 0x100 + p.msg[3];
+          servos.setPosition(servoId, newPosition);
           break;
       }
       
