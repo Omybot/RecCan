@@ -29,6 +29,9 @@ enum ServoFunction : byte {
 	TrajectorySet = 0x16
 };
 
+#define DEFAULT_POSITIONMIN 10000
+#define DEFAULT_POSITIONMAX 30000
+
 class MyServo {
 	
 	public :
@@ -79,9 +82,13 @@ class MyServo {
 		float _torqueLimit;
 
 		float _position;
-		float _targetPosition;
 		float _torque;
 		float _speed;
+
+		float _targetPosition;
+		float _startPosition;
+
+		float _trajectoryTime;
 	
 };
 

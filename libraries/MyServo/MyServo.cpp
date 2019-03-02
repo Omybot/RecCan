@@ -28,8 +28,8 @@ void MyServo::attach( int outputPin, int analogPin, int servoNum ){
 	EEPROM.get( 0x10*(_servoNum+1)+12, _torqueLimit);
 
 	// Sécurité si eeprom pas initialisée
-	if( _positionMin >= 0xFFFF ){ _positionMin = 0; EEPROM.put( 0x10*(_servoNum+1), 0 ); }
-	if( _positionMax == 0xFFFF ){ _positionMax = 0; EEPROM.put( 0x10*(_servoNum+1)+2, 0 ); }
+	if( _positionMin >= 0xFFFF ){ _positionMin = DEFAULT_POSITIONMIN; EEPROM.put( 0x10*(_servoNum+1), 0 ); }
+	if( _positionMax == 0xFFFF ){ _positionMax = DEFAULT_POSITIONMAX; EEPROM.put( 0x10*(_servoNum+1)+2, 0 ); }
 	if( _speedLimit == 0xFFFF ){ _speedLimit = 0; EEPROM.put( 0x10*(_servoNum+1)+4, 0 ); }
 	if( _acceleration == 0xFFFF ){ _acceleration = 0; EEPROM.put( 0x10*(_servoNum+1)+8, 0 ); }
 	if( _torqueLimit == 0xFFFF ){ _torqueLimit = 0; EEPROM.put( 0x10*(_servoNum+1)+12, 0 ); }
@@ -97,6 +97,8 @@ float MyServo::getTorque(){ return _torque; }
 
 void MyServo::setPosition( float position ){
 	_targetPosition = position;
+	_startPosition = _position;
+	_trajectoryTime = 0;
 }
 
 float MyServo::getPosition(){
@@ -109,7 +111,24 @@ float MyServo::getSpeed(){
 
 float MyServo::calcNextPosition(){
 
-	_position = _targetPosition;
+	_trajectoryTime += 0.02;
+
+	if( _targetPosition > _startPosition ){
+
+		_position = _startPosition + _speedLimit * _trajectoryTime;
+		if( _position > _targetPosition ) _position = _targetPosition;
+
+
+	} else if( _targetPosition < _startPosition ){
+
+		_position = _startPosition - _speedLimit * _trajectoryTime;
+		if( _position < _targetPosition ) _position = _targetPosition;
+
+	}
+
+	// Limite de position
+	if( _position > _positionMax ) _position = _positionMax;
+	if( _position < _positionMin ) _position = _positionMin;
 
 	return _position;
 }
