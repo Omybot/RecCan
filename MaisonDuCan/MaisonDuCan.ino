@@ -26,9 +26,7 @@ void sendCanPacketToEth( canPacket p );                           // Fonction qu
 // SETUP
 //////////////////////////////////////////////////////
 
-void setup() {
-
-  Serial.begin( 500000 );
+void setup() {  
   
   CAN.begin(CAN_125KBPS, MCP_8MHz);                               // Initialisation controleur CAN
 
