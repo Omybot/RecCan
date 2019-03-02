@@ -17,7 +17,7 @@ MyServoHandler::~MyServoHandler(){
 }
 
 ////////////////////////////////////////
-// Gestion Initialisation
+// Initialisation
 ////////////////////////////////////////
 
 void MyServoHandler::attach(){
@@ -28,6 +28,80 @@ void MyServoHandler::attach(){
 	
 	initTimer1();
 	initTimer2();
+}
+
+////////////////////////////////////////
+// Parametres servos
+////////////////////////////////////////
+
+void MyServoHandler::setPositionMin( byte servoNumber, uint16_t positionMin ){
+	_servos[servoNumber].setPositionMin( positionMin );
+}
+
+void MyServoHandler::setPositionMax( byte servoNumber, uint16_t positionMax ){
+	_servos[servoNumber].setPositionMax( positionMax );
+}
+
+void MyServoHandler::setSpeedLimit( byte servoNumber, float speedLimit ){
+	_servos[servoNumber].setSpeedLimit( speedLimit );
+}
+
+void MyServoHandler::setAcceleration( byte servoNumber, float acceleration ){
+	_servos[servoNumber].setAcceleration( acceleration );
+}
+
+void MyServoHandler::setTorqueLimit( byte servoNumber, float torqueLimit ){
+	_servos[servoNumber].setTorqueLimit( torqueLimit );
+}
+
+uint16_t MyServoHandler::getPositionMin( byte servoNumber ){
+	return _servos[servoNumber].getPositionMin();
+}
+
+uint16_t MyServoHandler::getPositionMax( byte servoNumber ){
+	return _servos[servoNumber].getPositionMax();
+}
+
+float MyServoHandler::getSpeedLimit( byte servoNumber ){
+	return _servos[servoNumber].getSpeedLimit();
+}
+
+float MyServoHandler::getAcceleration( byte servoNumber ){
+	return _servos[servoNumber].getAcceleration();
+}
+
+float MyServoHandler::getTorqueLimit( byte servoNumber ){
+	return _servos[servoNumber].getTorqueLimit();
+}
+
+////////////////////////////////////////
+// Gestion position/trajectoire
+////////////////////////////////////////
+
+void MyServoHandler::setPosition( byte servoNumber, float position ){
+	_servos[servoNumber].setPosition( position );
+}
+
+void MyServoHandler::setTrajectory( byte servoNumber, float position, float speedLimit, float acceleration ){
+	_servos[servoNumber].setSpeedLimit( speedLimit );
+	_servos[servoNumber].setAcceleration( acceleration );
+	_servos[servoNumber].setPosition( position );
+}
+
+////////////////////////////////////////
+// Infos servo
+////////////////////////////////////////
+
+float MyServoHandler::getPosition( byte servoNumber ){
+	return _servos[servoNumber].getPosition();
+}
+
+float MyServoHandler::getSpeed( byte servoNumber ){
+	return _servos[servoNumber].getSpeed();
+}
+
+float MyServoHandler::getTorque( byte servoNumber ){
+	return _servos[servoNumber].getTorque();
 }
 
 ////////////////////////////////////////
@@ -45,118 +119,49 @@ void MyServoHandler::timer2Interrupt(){
 }
 
 ////////////////////////////////////////
-// Gestion position
-////////////////////////////////////////
-
-void MyServoHandler::setPosition( byte servoNumber, float target ){
-	_servos[servoNumber].setPosition( target );
-}
-
-float MyServoHandler::getPosition( byte servoNumber ){
-	return _servos[servoNumber].getPosition();
-}
-
-void MyServoHandler::setTargetPosition( byte servoNumber, float position ){
-	_servos[servoNumber].setTargetPosition( position );
-}
-
-float MyServoHandler::getTargetPosition( byte servoNumber ){
-	return _servos[servoNumber].getTargetPosition();
-}
-
-
-////////////////////////////////////////
-// Gestion vitesse
-////////////////////////////////////////
-
-void MyServoHandler::setMaxSpeed( byte servoNumber, float maxSpeed ){
-	_servos[servoNumber].setMaxSpeed(maxSpeed);
-}
-
-float MyServoHandler::getMaxSpeed( byte servoNumber ){
-	return _servos[servoNumber].getMaxSpeed();
-}
-
-float MyServoHandler::getSpeed( byte servoNumber ){
-	return _servos[servoNumber].getSpeed();
-}
-
-////////////////////////////////////////
-// Gestion acceleration
-////////////////////////////////////////
-
-void MyServoHandler::setAccel( byte servoNumber, float accel ){
-	_servos[servoNumber].setAccel(accel);
-}
-
-float MyServoHandler::getAccel( byte servoNumber ){
-	return _servos[servoNumber].getAccel();
-}
-
-////////////////////////////////////////
-// Gestion couple
-////////////////////////////////////////
-
-float MyServoHandler::getTorque( byte servoNumber ){
-	return _servos[servoNumber].getTorque();
-}
-
-////////////////////////////////////////
-// Gestion trajectoires
-////////////////////////////////////////
-
-void MyServoHandler::setTrajectory( byte servoNumber, float targetPosition, float maxSpeed, float accel ){
-	_servos[servoNumber].setMaxSpeed(maxSpeed);
-	_servos[servoNumber].setAccel(accel);
-	_servos[servoNumber].setTargetPosition( targetPosition );
-}
-
-////////////////////////////////////////
 // Private
 ////////////////////////////////////////
 
 
 void MyServoHandler::initTimer1(){
-	noInterrupts();				// disable all interrupts
+	noInterrupts();						// disable all interrupts
 	TCCR1A = 0;
 	TCCR1B = 0;
 	TCNT1  = 0;
-	TCCR1B |= (1 << WGM12);		// CTC mode
-	TIMSK1 |= (1 << OCIE1A);	// enable timer compare interrupt
+	TCCR1B |= (1 << WGM12);				// CTC mode
+	TIMSK1 |= (1 << OCIE1A);			// enable timer compare interrupt
 	interrupts(); 
 }
 
 void MyServoHandler::rearmTimer1( float code ){
-	OCR1A = code;				// Compare match register (15999+1)/16MHz = 1ms
-	TCNT1 = 0;					// Remise à zéro du compteur
-	TCCR1B |= (1 << CS10);		// Prescaler = 1 -> fclk = 16MHz (62,5ns)
+	OCR1A = code;						// Compare match register (15999+1)/16MHz = 1ms
+	TCNT1 = 0;							// Remise à zéro du compteur
+	TCCR1B |= (1 << CS10);				// Prescaler = 1 -> fclk = 16MHz (62,5ns)
 }
 
 void MyServoHandler::initTimer2(){
-	noInterrupts();				// disable all interrupts
+	noInterrupts();						// disable all interrupts
 	TCCR2A = 0;
 	TCCR2B = 0;
 	TCNT2  = 0;
-	OCR2A = 77;					// Compare match register (77+1)*1024/16MHz ~= 5ms
-	TCCR2A |= (1 << WGM21);		// CTC mode
-	TCCR2B |= (1 << CS22);		// Prescaler = 1024 -> fclk = 15,625kHz (64us)
+	OCR2A = 77;							// Compare match register (77+1)*1024/16MHz ~= 5ms
+	TCCR2A |= (1 << WGM21);				// CTC mode
+	TCCR2B |= (1 << CS22);				// Prescaler = 1024 -> fclk = 15,625kHz (64us)
 	TCCR2B |= (1 << CS21);
 	TCCR2B |= (1 << CS20);
-	TIMSK2 |= (1 << OCIE2A);	// enable timer compare interrupt
+	TIMSK2 |= (1 << OCIE2A);			// enable timer compare interrupt
 	interrupts();  
 }
 
 void MyServoHandler::handleNextServo(){
 	
-	// Determine le servo suivant
-	_currentServo = (_currentServo+1) % 4;
+	_currentServo = (_currentServo+1) % 4;						// Determine le servo suivant
 	
-	// Calcul la nouvelle position
-	float newPos = _servos[_currentServo].getNextPosition();
+	float newPos = _servos[_currentServo].calcNextPosition();	// Calcul la nouvelle position
 	
 	if( newPos != 0 ){
-		rearmTimer1( newPos );						// Timer1 comme chronometre pour compter temps sortie servo état haut
-		_servos[_currentServo].setOutputHigh();	// Sortie servo à l'état haut
+		rearmTimer1( newPos );									// Timer1 comme chronometre pour compter temps sortie servo état haut
+		_servos[_currentServo].setOutputHigh();					// Sortie servo à l'état haut
 	}
 	
 }

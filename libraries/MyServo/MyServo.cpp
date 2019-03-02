@@ -7,7 +7,7 @@ MyServo::~MyServo(){
 }
 
 ////////////////////////////////////////
-// Gestion Initialisation
+// Initialisation
 ////////////////////////////////////////
 
 void MyServo::attach( int outputPin, int analogPin ){
@@ -21,124 +21,61 @@ void MyServo::attach( int outputPin, int analogPin ){
 }
 
 ////////////////////////////////////////
-// Gestion position (déplacement direct)
+// Gestion pin de sortie
+////////////////////////////////////////
+
+void MyServo::setOutputHigh(){ digitalWrite( _outputPin, HIGH ); }
+void MyServo::setOutputLow(){ digitalWrite( _outputPin, LOW ); }
+
+////////////////////////////////////////
+// Parametres servo
+////////////////////////////////////////
+
+void MyServo::setPositionMin( uint16_t positionMin ){ _positionMin = positionMin; }
+void MyServo::setPositionMax( uint16_t positionMax ){ _positionMax = positionMax; }
+void MyServo::setSpeedLimit( float speedLimit ){ _speedLimit = speedLimit; }
+void MyServo::setAcceleration( float acceleration ){ _acceleration = acceleration; }
+void MyServo::setTorqueLimit( float torqueLimit ){ _torqueLimit = torqueLimit; }
+
+uint16_t MyServo::getPositionMin(){ return _positionMin; }
+uint16_t MyServo::getPositionMax(){ return _positionMax; }
+float MyServo::getSpeedLimit(){ return _speedLimit; }
+float MyServo::getAcceleration(){ return _acceleration; }
+float MyServo::getTorqueLimit(){ return _torqueLimit; }
+
+////////////////////////////////////////
+// Mesure du couple
+////////////////////////////////////////
+
+void MyServo::updateTorque(){
+
+	float voltage = analogRead( _analogPin ) * 5.0 / 1024.0;
+	_torque = voltage * 1000;						// Ici facteur de conversion U->I(mA) carte éléctronique
+
+}
+
+float MyServo::getTorque(){ return _torque; }
+
+////////////////////////////////////////
+// Gestion position/vitesse
 ////////////////////////////////////////
 
 void MyServo::setPosition( float position ){
 	_targetPosition = position;
-	_position = position;
 }
 
 float MyServo::getPosition(){
 	return _position;
 }
 
-////////////////////////////////////////
-// Gestion position (déplacement avec param vitesse et accel)
-////////////////////////////////////////
-
-void MyServo::setTargetPosition( float position ){
-	
-	_targetPosition = position;						// Mise à jour de la valeur position cible
-	_initPosition = _position;						// Enregistrement position initiale
-	
-	_speed = 0;										// Vitesse de départ à zéro
-	
-	
-	//_ticksToDo = _targetPosition - _position;		// Calcul de la distance à parcourir
-	
-}
-
-float MyServo::getTargetPosition(){
-	return _targetPosition;
-}
-
-////////////////////////////////////////
-// Routine de calcul position suivante (toutes les 5 ms)
-////////////////////////////////////////
-
-float MyServo::getNextPosition(){
-	
-	if( _targetPosition == 0 ){
-		_position = 0;
-		return _position;
-	}
-	
-	// Calcul de la distance parcourue
-	float distanceToDo = abs( _targetPosition - _position );
-	float traveledDistance = abs( _position - _initPosition );
-	
-	int direction;
-	if( ( _targetPosition - _position ) > 0 ) direction = 1;
-	else if( ( _targetPosition - _position ) < 0 ) direction = -1;
-	else direction = 0;
-	
-	if( traveledDistance >= distanceToDo ){					// Si j'ai parcouru plus de la moitié du chemin
-		if( abs(_accel) >= abs(_speed) ) _speed = _accel;
-		else _speed -= _accel;									// Il faut diminuer la vitesse
-		if( distanceToDo < abs( _speed )) _speed = distanceToDo;
-	} else {
-		_speed += _accel;									// Il faut augmenter la vitesse
-	}
-	
-	// Mise à jour position + verif vmax
-	if( _speed > _maxSpeed ) 
-		_position += _maxSpeed * direction;
-	else 
-		_position += _speed * direction;
-	
-	return _position;
-	
-}
-
-////////////////////////////////////////
-// Gestion vitesse
-////////////////////////////////////////
-
-void MyServo::setMaxSpeed( float maxSpeed ){
-	_maxSpeed = maxSpeed;
-}
-
-float MyServo::getMaxSpeed(){
-	return _maxSpeed;
-}
-
 float MyServo::getSpeed(){
 	return _speed;
 }
 
-////////////////////////////////////////
-// Gestion acceleration
-////////////////////////////////////////
+float MyServo::calcNextPosition(){
 
-void MyServo::setAccel( float accel ){
-	_accel = accel;
+	_position = _targetPosition;
+
+	return _position;
 }
 
-float MyServo::getAccel(){
-	return _accel;
-}
-
-////////////////////////////////////////
-// Gestion couple
-////////////////////////////////////////
-
-float MyServo::getTorque(){
-	return _torque;
-}
-
-void MyServo::updateTorque(){
-	_torque = analogRead( _analogPin );
-}
-
-////////////////////////////////////////
-// Gestion pin de sortie
-////////////////////////////////////////
-
-void MyServo::setOutputHigh(){
-	digitalWrite( _outputPin, HIGH );
-}
-
-void MyServo::setOutputLow(){
-	digitalWrite( _outputPin, LOW );
-}

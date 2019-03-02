@@ -12,33 +12,12 @@ unsigned long packetTimeout = 100;                    // Temps max (ms) d'essai 
 
 canPacket response;
 
-// Simulation variables servo
-unsigned int position, positionMin, positionMax;                                
-unsigned int speed;
-unsigned int torqueCurrent, torqueMax;
-unsigned int acceleration;
-
-/////////////////////////////////
 // Gestion des servos
-/////////////////////////////////
-
 MyServoHandler servos;
-
-/////////////////////////////////
-// Gestion des interruptions
-/////////////////////////////////
-ISR(TIMER1_COMPA_vect) {
-  servos.timer1Interrupt();
-}
-ISR(TIMER2_COMPA_vect) {
-  servos.timer2Interrupt();
-}
-
-unsigned long time, stepTime = 500;
+ISR(TIMER1_COMPA_vect){ servos.timer1Interrupt(); }
+ISR(TIMER2_COMPA_vect){ servos.timer2Interrupt(); }
 
 void setup(){
-
-  Serial.begin(500000);
   
   // Gestion des pins
   servos.attach();
@@ -54,14 +33,6 @@ void setup(){
 }
 
 void loop(){
-
-  if( millis() > time + stepTime ){
-    time += stepTime;
-    Serial.print( cptInPackets );
-    Serial.print( " " );
-    Serial.print( cptOutPackets );
-    Serial.println();
-  }
 
   // Envoi sur bus CAN
   if( response.msg[0] != 0 ){                         // Si il y a un message à envoyer
@@ -102,85 +73,97 @@ void loop(){
       case PositionMinAsk : {
           response.msg[0] = PositionMinResponse;
           response.msg[1] = servoId;
+          unsigned int positionMin = servos.getPositionMin(servoId);
           response.msg[2] = positionMin >> 8;
           response.msg[3] = positionMin & 0xFF;
         break;
       }
       
       case PositionMinSet : {
-          positionMin = p.msg[2] * 0x100 + p.msg[3];
+          unsigned int newPositionMin = p.msg[2] * 0x100 + p.msg[3];
+          servos.setPosition(servoId, newPositionMin);
           break;
       }
       
       case PositionMaxAsk : {
           response.msg[0] = PositionMaxResponse;
           response.msg[1] = servoId;
+          unsigned int positionMax = servos.getPositionMin(servoId);
           response.msg[2] = positionMax >> 8;
           response.msg[3] = positionMax & 0xFF;
         break;
       }
       
       case PositionMaxSet : {
-          positionMax = p.msg[2] * 0x100 + p.msg[3];
+          unsigned int newPositionMax = p.msg[2] * 0x100 + p.msg[3];
+          servos.setPosition(servoId, newPositionMax);
           break;
       }
       
       case SpeedAsk : {
           response.msg[0] = SpeedResponse;
           response.msg[1] = servoId;
+          unsigned int speed = servos.getSpeed(servoId);
           response.msg[2] = speed >> 8;
           response.msg[3] = speed & 0xFF;
         break;
       }
       
       case SpeedSet : {
-          speed = p.msg[2] * 0x100 + p.msg[3];
+          unsigned int newSpeedLimit = p.msg[2] * 0x100 + p.msg[3];
+          servos.setSpeedLimit(servoId, newSpeedLimit);
           break;
       }
       
       case TorqueMaxAsk : {
           response.msg[0] = TorqueMaxResponse;
           response.msg[1] = servoId;
-          response.msg[2] = torqueMax >> 8;
-          response.msg[3] = torqueMax & 0xFF;
+          unsigned int torqueLimit = servos.getTorqueLimit(servoId);
+          response.msg[2] = torqueLimit >> 8;
+          response.msg[3] = torqueLimit & 0xFF;
         break;
       }
       
       case TorqueMaxSet : {
-          torqueMax = p.msg[2] * 0x100 + p.msg[3];
+          unsigned int newTorqueMax = p.msg[2] * 0x100 + p.msg[3];
+          servos.setTorqueLimit(servoId, newTorqueMax);
           break;
       }
       
       case TorqueCurrentAsk : {
           response.msg[0] = TorqueCurrentResponse;
           response.msg[1] = servoId;
-          response.msg[2] = torqueCurrent >> 8;
-          response.msg[3] = torqueCurrent & 0xFF;
+          unsigned int torque = servos.getTorque(servoId);
+          response.msg[2] = torque >> 8;
+          response.msg[3] = torque & 0xFF;
         break;
       }
       
       case AccelerationAsk : {
           response.msg[0] = AccelerationResponse;
           response.msg[1] = servoId;
+          unsigned int acceleration = servos.getAcceleration(servoId);
           response.msg[2] = acceleration >> 8;
           response.msg[3] = acceleration & 0xFF;
         break;
       }
       
       case AccelerationSet : {
-          acceleration = p.msg[2] * 0x100 + p.msg[3];
+          unsigned int newAcceleration = p.msg[2] * 0x100 + p.msg[3];
+          servos.setAcceleration(servoId, newAcceleration);
           break;
       }
       
       case TargetSet : {
-          position = p.msg[2] * 0x100 + p.msg[3];
+//          position = p.msg[2] * 0x100 + p.msg[3];
           break;
       }
       
       case TrajectorySet : {
-          position = p.msg[2] * 0x100 + p.msg[3];
-          speed = p.msg[4] * 0x100 + p.msg[5];
-          acceleration = p.msg[6] * 0x100 + p.msg[7];
+          unsigned int newPosition = p.msg[2] * 0x100 + p.msg[3];
+          unsigned int newSpeedLimit = p.msg[4] * 0x100 + p.msg[5];
+          unsigned int newAcceleration = p.msg[6] * 0x100 + p.msg[7];
+          servos.setTrajectory(servoId,newPosition, newSpeedLimit, newAcceleration);
           break;
       }
 

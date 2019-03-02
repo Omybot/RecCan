@@ -14,34 +14,32 @@ class MyServoHandler {
 		// Inititalisation
 		void attach();
 		
+		// Parametres servos
+		void setPositionMin( byte servoNumber, uint16_t positionMin );
+		void setPositionMax( byte servoNumber, uint16_t positionMax );
+		void setSpeedLimit( byte servoNumber, float speedLimit );
+		void setAcceleration( byte servoNumber, float acceleration );
+		void setTorqueLimit( byte servoNumber, float torqueLimit );
+
+		uint16_t getPositionMin( byte servoNumber );
+		uint16_t getPositionMax( byte servoNumber );
+		float getSpeedLimit( byte servoNumber );
+		float getAcceleration( byte servoNumber );
+		float getTorqueLimit( byte servoNumber );
+
+		// Gestion position/trajectoire
+		void setPosition( byte servoNumber, float position );
+		void setTrajectory( byte servoNumber, float position, float speedLimit, float acceleration );
+
+		// Infos servo
+		float getPosition( byte servoNumber );
+		float getSpeed( byte servoNumber );
+		float getTorque( byte servoNumber );
+		
 		// Gestion des interruptions
 		void timer1Interrupt();
 		void timer2Interrupt();
-		
-		// Gestion position (déplacement direct)
-		void setPosition( byte servoNumber, float target );
-		float getPosition( byte servoNumber );
-		
-		// Gestion position (déplacement avec acceleration et vitesse)
-		void setTargetPosition( byte servoNumber, float position );
-		float getTargetPosition( byte servoNumber );
-		
-		// Gestion de la vitesse
-		void setMaxSpeed( byte servoNumber, float maxSpeed );
-		float getMaxSpeed( byte servoNumber );
-		float getSpeed( byte servoNumber );
-		
-		// Gestion de l'acceleration
-		void setAccel( byte servoNumber, float accel );
-		float getAccel( byte servoNumber );
-		
-		// Gestion du couple
-		float getTorque( byte servoNumber );
-		
-		// Gestion des trajectoires
-		void setTrajectory( byte servoNumber, float targetPosition, float maxSpeed, float accel );
-		
-		
+
 	private :
 	
 		byte _currentServo;
