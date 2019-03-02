@@ -100,23 +100,23 @@ void loop(){
           break;
       }
       
-      case SpeedAsk : {
-          response.msg[0] = SpeedResponse;
+      case SpeedLimitAsk : {
+          response.msg[0] = SpeedLimitResponse;
           response.msg[1] = servoId;
-          unsigned int speed = servos.getSpeed(servoId);
-          response.msg[2] = speed >> 8;
-          response.msg[3] = speed & 0xFF;
+          unsigned int speedLimit = servos.getSpeedLimit(servoId);
+          response.msg[2] = speedLimit >> 8;
+          response.msg[3] = speedLimit & 0xFF;
         break;
       }
       
-      case SpeedSet : {
+      case SpeedLimitSet : {
           unsigned int newSpeedLimit = p.msg[2] * 0x100 + p.msg[3];
           servos.setSpeedLimit(servoId, newSpeedLimit);
           break;
       }
       
-      case TorqueMaxAsk : {
-          response.msg[0] = TorqueMaxResponse;
+      case TorqueLimitAsk : {
+          response.msg[0] = TorqueLimitResponse;
           response.msg[1] = servoId;
           unsigned int torqueLimit = servos.getTorqueLimit(servoId);
           response.msg[2] = torqueLimit >> 8;
@@ -124,14 +124,14 @@ void loop(){
         break;
       }
       
-      case TorqueMaxSet : {
-          unsigned int newTorqueMax = p.msg[2] * 0x100 + p.msg[3];
-          servos.setTorqueLimit(servoId, newTorqueMax);
+      case TorqueLimitSet : {
+          unsigned int newTorqueLimit = p.msg[2] * 0x100 + p.msg[3];
+          servos.setTorqueLimit(servoId, newTorqueLimit);
           break;
       }
       
-      case TorqueCurrentAsk : {
-          response.msg[0] = TorqueCurrentResponse;
+      case TorqueAsk : {
+          response.msg[0] = TorqueResponse;
           response.msg[1] = servoId;
           unsigned int torque = servos.getTorque(servoId);
           response.msg[2] = torque >> 8;

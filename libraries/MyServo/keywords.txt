@@ -12,4 +12,52 @@ MyServo	KEYWORD1
 # Methods and Functions (KEYWORD2)
 # i.e. : functionOne KEYWORD2
 #######################################
+attach	 			KEYWORD2
+setOutputHigh		KEYWORD2
+setOutputLow		KEYWORD2
+setPositionMin		KEYWORD2
+setPositionMax		KEYWORD2
+setSpeedLimit		KEYWORD2
+setAcceleration		KEYWORD2
+setTorqueLimit		KEYWORD2
+getPositionMin		KEYWORD2
+getPositionMax		KEYWORD2
+getSpeedLimit		KEYWORD2
+getAcceleration		KEYWORD2
+getTorqueLimit		KEYWORD2
+updateTorque		KEYWORD2
+getTorque	 		KEYWORD2
+setPosition	 		KEYWORD2
+getPosition	 		KEYWORD2
+getSpeed	 		KEYWORD2
+calcNextPosition	KEYWORD2
 
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+PositionAsk			LITERAL1
+PositionResponse	LITERAL1
+PositionSet			LITERAL1
+PositionMinAsk		LITERAL1
+PositionMinResponse	LITERAL1
+PositionMinSet		LITERAL1
+PositionMaxAsk		LITERAL1
+PositionMaxResponse	LITERAL1
+PositionMaxSet		LITERAL1
+SpeedLimitAsk		LITERAL1
+SpeedLimitResponse	LITERAL1
+SpeedLimitSet		LITERAL1
+TorqueLimitAsk		LITERAL1
+TorqueLimitResponse	LITERAL1
+TorqueLimitSet		LITERAL1
+TorqueAsk			LITERAL1
+TorqueResponse		LITERAL1
+AccelerationAsk		LITERAL1
+AccelerationResponse	LITERAL1
+AccelerationSet		LITERAL1
+TargetSet			LITERAL1
+TrajectorySet		LITERAL1
+
+DEFAULT_POSITIONMIN	LITERAL1
+DEFAULT_POSITIONMAX	LITERAL1
