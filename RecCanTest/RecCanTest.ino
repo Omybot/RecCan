@@ -81,14 +81,14 @@ void loop(){
       
       case PositionMinSet : {
           unsigned int newPositionMin = p.msg[2] * 0x100 + p.msg[3];
-          servos.setPosition(servoId, newPositionMin);
+          servos.setPositionMin(servoId, newPositionMin);
           break;
       }
       
       case PositionMaxAsk : {
           response.msg[0] = PositionMaxResponse;
           response.msg[1] = servoId;
-          unsigned int positionMax = servos.getPositionMin(servoId);
+          unsigned int positionMax = servos.getPositionMax(servoId);
           response.msg[2] = positionMax >> 8;
           response.msg[3] = positionMax & 0xFF;
         break;
@@ -96,7 +96,7 @@ void loop(){
       
       case PositionMaxSet : {
           unsigned int newPositionMax = p.msg[2] * 0x100 + p.msg[3];
-          servos.setPosition(servoId, newPositionMax);
+          servos.setPositionMax(servoId, newPositionMax);
           break;
       }
       

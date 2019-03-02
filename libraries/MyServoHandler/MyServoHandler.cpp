@@ -21,10 +21,10 @@ MyServoHandler::~MyServoHandler(){
 ////////////////////////////////////////
 
 void MyServoHandler::attach(){
-	_servos[0].attach(OUT_PIN_SERVO_0, ANALOG_PIN_SERVO_0);
-	_servos[1].attach(OUT_PIN_SERVO_1, ANALOG_PIN_SERVO_1);
-	_servos[2].attach(OUT_PIN_SERVO_2, ANALOG_PIN_SERVO_2);
-	_servos[3].attach(OUT_PIN_SERVO_3, ANALOG_PIN_SERVO_3);
+	_servos[0].attach(OUT_PIN_SERVO_0, ANALOG_PIN_SERVO_0, 0);
+	_servos[1].attach(OUT_PIN_SERVO_1, ANALOG_PIN_SERVO_1, 1);
+	_servos[2].attach(OUT_PIN_SERVO_2, ANALOG_PIN_SERVO_2, 2);
+	_servos[3].attach(OUT_PIN_SERVO_3, ANALOG_PIN_SERVO_3, 3);
 	
 	initTimer1();
 	initTimer2();

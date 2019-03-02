@@ -2,6 +2,7 @@
 #define MY_SERVO_H
 
 #include <Arduino.h>
+#include <EEPROM.h>
 
 enum ServoFunction : byte {	
 	PositionAsk = 0x01,
@@ -36,7 +37,7 @@ class MyServo {
 		~MyServo();
 		
 		// Initialisation
-		void attach( int outputPin, int analogPin );
+		void attach( int outputPin, int analogPin, int servoNum );
 
 		// Gestion pin de sortie
 		void setOutputHigh();
@@ -69,6 +70,7 @@ class MyServo {
 	
 		int _outputPin;
 		int _analogPin;
+		int _servoNum;
 
 		uint16_t _positionMin;
 		uint16_t _positionMax;
