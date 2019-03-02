@@ -11,7 +11,7 @@ enum CanFunction{
 	DebugResponse = 0xF2,
 };
 
-#define SPI_CAN_CS_PIN	10	// Pin du chip select du composant MCP2515
+#define SPI_CAN_CS_PIN	8	// Pin du chip select du composant MCP2515
 
 #define	CAN_PACKET_SIZE	10	// Taille de chaque packet en octet
 
