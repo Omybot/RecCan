@@ -2,7 +2,7 @@
 #include <EEPROM.h>
 #include "mcp_can.h"
 
-//#define DEBUG_EN  1
+#define DEBUG_EN  1
 
 // Gestion ETHERNET
 
@@ -130,7 +130,7 @@ void loop(){
       udpPacketBuffer[4] = canId % 0x100;
       for( int i=0 ; i<CAN_FRAMESIZE ; i++ ){
         if( i < canMsgSize ) udpPacketBuffer[i+5] = canMsg[i];
-        else udpPacketBuffer[i] = 0;
+        else                 udpPacketBuffer[i+5] = 0x00;
       }
       Udp.beginPacket(remoteIp, remotePort);
       Udp.write(udpPacketBuffer, ETH_PACKETSIZE);
