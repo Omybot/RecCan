@@ -163,7 +163,14 @@ void loop(){
 
       // Envoi trame CAN
       bool sendStatus = CAN.sendMsgBuf( canId, 0, CAN_FRAMESIZE, canMsg, 0);
-      if( sendStatus != CAN_OK ) Serial.println( "Envoi KO !!!!!" );
+      if( sendStatus != CAN_OK ){
+        Serial.println( "Envoi KO !!!!!" );
+        udpPacketBuffer[0] = 0xFF;
+        udpPacketSize = 1;
+        Udp.beginPacket(remoteIp, remotePort);
+        Udp.write(udpPacketBuffer, udpPacketSize);
+        Udp.endPacket();
+      }
 
     } else {
 
