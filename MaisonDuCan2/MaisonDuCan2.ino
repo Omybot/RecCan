@@ -2,6 +2,8 @@
 #include <EEPROM.h>
 #include "mcp_can.h"
 
+//#define DEBUG_EN  1
+
 // Gestion ETHERNET
 
 #define ETH_CS_PIN  9
@@ -11,7 +13,7 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};                // Adresse mac
 IPAddress localIp(192, 168, 1, 15);                               // Adresse ip de la Maison du Can
 IPAddress remoteIp(192, 168, 1, 26);                              // Adresse ip de la Maison du Can
 unsigned int localPort = 12315;                                   // port sur lequel écouter
-unsigned int remotePort = 54355;
+unsigned int remotePort = 64144;
 
 byte udpId = 0xC5;                                                // Identifiant Udp de la Maison du CAN
 byte udpEnvoiCan = 0xC0;                                          // Commande Udp utilisée pour les envoi CAN
@@ -38,8 +40,10 @@ void initCANMasksAndFilters() {
   // Récupération boardId
   uint16_t boardId;
   EEPROM.get(0, boardId);                 // Récupération id de la carte
+  #ifdef DEBUG_EN
   Serial.print( "BoardId : " );
   Serial.println( boardId );
+  #endif
 
   // Buffer de récéption RXB0 (1 masque et 2 filtres associés)
   CAN.init_Mask( 0, 0, 0xFFFF );          // Par défaut, le masque 1 bloque tout type d'identifiant, seul les filtres peuvent autoriser les identifiants
@@ -55,6 +59,7 @@ void initCANMasksAndFilters() {
 
 }
 
+#ifdef DEBUG_EN
 void printCANFrame( unsigned int canId, const byte *canMsg, unsigned char canMsgSize ){
   
   Serial.print( "ID : 0x");
@@ -73,10 +78,13 @@ void printCANFrame( unsigned int canId, const byte *canMsg, unsigned char canMsg
   Serial.println();
   
 }
+#endif
 
 void setup(){
 
+  #ifdef DEBUG_EN
   Serial.begin(500000);
+  #endif
 
   Ethernet.init(ETH_CS_PIN);
   Ethernet.begin(mac, localIp);                                    // Initialisation connection Ethernet
@@ -86,7 +94,9 @@ void setup(){
   initCANMasksAndFilters();
   attachInterrupt(0, MCP2515_ISR, FALLING);
 
+  #ifdef DEBUG_EN
   Serial.println( "Init OK" );
+  #endif
 
 }
 
@@ -105,8 +115,11 @@ void loop(){
       unsigned long canId = CAN.getCanId();
 
       // Affichage trame recue
+      
+      #ifdef DEBUG_EN
       Serial.print( "\nNouvelle reception CAN => " );
       printCANFrame( canId, canMsg, canMsgSize );
+      #endif
 
       // Envoi sur le réseau Ethernet
       uint8_t udpPacketBuffer[ETH_PACKETSIZE];
@@ -136,6 +149,8 @@ void loop(){
     Udp.read(udpPacketBuffer, udpPacketSize);
 
     // Affichage packet recu
+    
+    #ifdef DEBUG_EN
     Serial.print( "\nNouvelle reception ETHERNET (taille : " );
     if( udpPacketSize < 10 ) Serial.print( " " );
     Serial.print( udpPacketSize );
@@ -146,6 +161,7 @@ void loop(){
       if( i < udpPacketSize-1 ) Serial.print( "-" );
     }
     Serial.println();
+    #endif
 
     // Test si trame à envoyer
     if( udpPacketSize == ETH_PACKETSIZE
@@ -158,13 +174,18 @@ void loop(){
       for( uint8_t i=0 ; i<CAN_FRAMESIZE ; i++ ) canMsg[i] = udpPacketBuffer[i + 5];
 
       // Affichage trame CAN à envoyer
+      
+      #ifdef DEBUG_EN
       Serial.print( "Nouvel envoi CAN => " );
       printCANFrame( canId, canMsg, CAN_FRAMESIZE );
+      #endif
 
       // Envoi trame CAN
       bool sendStatus = CAN.sendMsgBuf( canId, 0, CAN_FRAMESIZE, canMsg, 0);
       if( sendStatus != CAN_OK ){
+        #ifdef DEBUG_EN
         Serial.println( "Envoi KO !!!!!" );
+        #endif
         udpPacketBuffer[0] = 0xFF;
         udpPacketSize = 1;
         Udp.beginPacket(remoteIp, remotePort);
@@ -174,7 +195,9 @@ void loop(){
 
     } else {
 
+      #ifdef DEBUG_EN
       Serial.println( "Retour packet à l'envoyeur" );
+      #endif
 
       // Renvoi packet ethernet à l'envoyeur
       Udp.beginPacket(remoteIp, remotePort);
