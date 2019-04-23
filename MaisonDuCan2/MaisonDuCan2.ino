@@ -14,7 +14,6 @@ unsigned long stepTime = 1000;
 // Gestion ETHERNET
 
 #define ETH_CS_PIN  9
-#define ETH_PACKETSIZE 13
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};                // Adresse mac de la Maison du Can
 IPAddress localIp(192, 168, 1, 15);                               // Adresse ip de la Maison du Can
@@ -28,13 +27,19 @@ byte udpReponseCan = 0xC1;                                        // Commande Ud
 
 EthernetUDP Udp;                                                  // An EthernetUDP instance to let us send and receive packets over UDP
 
+#define ETH_MAX_PACKETSIZE 13
+uint8_t udpPacketBuffer[ETH_MAX_PACKETSIZE];
+
 // Gestion CAN
 
 #define CAN_CS_PIN  10
-#define CAN_FRAMESIZE 8
+#define CAN_MAX_FRAMESIZE 8
 
 MCP_CAN CAN(CAN_CS_PIN);
 
+unsigned int canId;
+unsigned char canMsgSize;
+uint8_t canMsg[CAN_MAX_FRAMESIZE];
 unsigned char flagRecv = 0;
 
 void MCP2515_ISR(){
@@ -105,10 +110,9 @@ void loop(){
       cptCanIn++;
 
       // Récupération message
-      unsigned char canMsgSize;
-      unsigned char canMsg[8];
+      canMsgSize;
       CAN.readMsgBuf(&canMsgSize, canMsg);
-      unsigned long canId = CAN.getCanId();
+      canId = CAN.getCanId();
 
       // Affichage trame recue
       #ifdef DEBUG_EN
@@ -117,18 +121,14 @@ void loop(){
       #endif
 
       // Envoi sur le réseau Ethernet
-      uint8_t udpPacketBuffer[ETH_PACKETSIZE];
       udpPacketBuffer[0] = udpId;
       udpPacketBuffer[1] = udpReponseCan;
-      udpPacketBuffer[2] = ETH_PACKETSIZE - 3;
+      udpPacketBuffer[2] = canMsgSize+2;
       udpPacketBuffer[3] = canId / 0x100;
       udpPacketBuffer[4] = canId % 0x100;
-      for( int i=0 ; i<CAN_FRAMESIZE ; i++ ){
-        if( i < canMsgSize ) udpPacketBuffer[i+5] = canMsg[i];
-        else                 udpPacketBuffer[i+5] = 0x00;
-      }
+      for( int i=0 ; i<canMsgSize ; i++ ) udpPacketBuffer[i+5] = canMsg[i];
       Udp.beginPacket(remoteIp, remotePort);
-      Udp.write(udpPacketBuffer, ETH_PACKETSIZE);
+      Udp.write(udpPacketBuffer, canMsgSize+5);
       Udp.endPacket();
 
     }
@@ -140,7 +140,6 @@ void loop(){
   if( udpPacketSize ){
 
     // Récupération du packet ETHERNET
-    uint8_t udpPacketBuffer[udpPacketSize];
     Udp.read(udpPacketBuffer, udpPacketSize);
 
     // Affichage packet recu
@@ -158,23 +157,25 @@ void loop(){
     #endif
 
     // Test si trame à envoyer
-    if( udpPacketSize == ETH_PACKETSIZE
-         && udpPacketBuffer[0] == udpId
-         && udpPacketBuffer[1] == udpEnvoiCan
-         && udpPacketBuffer[2] == ETH_PACKETSIZE - 3 ){
+    if( udpPacketSize >= 5
+          && udpPacketSize <= ETH_MAX_PACKETSIZE
+          && udpPacketBuffer[0] == udpId
+          && udpPacketBuffer[1] == udpEnvoiCan
+          && udpPacketBuffer[2] > 2
+          && udpPacketBuffer[2] <= CAN_MAX_FRAMESIZE+2 ){
 
-      unsigned int canId = udpPacketBuffer[3] * 0x100 + udpPacketBuffer[4];
-      uint8_t canMsg[CAN_FRAMESIZE];
-      for( uint8_t i=0 ; i<CAN_FRAMESIZE ; i++ ) canMsg[i] = udpPacketBuffer[i + 5];
+      canId = udpPacketBuffer[3] * 0x100 + udpPacketBuffer[4];
+      canMsgSize = udpPacketBuffer[2]-2;
+      for( uint8_t i=0 ; i<canMsgSize ; i++ ) canMsg[i] = udpPacketBuffer[i + 5];
 
       // Affichage trame CAN à envoyer
       #ifdef DEBUG_EN
       Serial.print( "Nouvel envoi CAN => " );
-      printCANFrame( canId, canMsg, CAN_FRAMESIZE );
+      printCANFrame( canId, canMsg, canMsgSize );
       #endif
 
       // Envoi trame CAN
-      bool sendStatus = CAN.sendMsgBuf( canId, 0, CAN_FRAMESIZE, canMsg, 0);
+      bool sendStatus = CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0);
       if( sendStatus == CAN_OK ){
         cptCanOut++;
       } else {
