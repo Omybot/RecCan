@@ -9,8 +9,25 @@
 MCP_CAN CAN(CAN_CS_PIN); 
 
 unsigned char flagRecv = 0;
-unsigned char len = 0;
-unsigned char buf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+void printCANFrame( unsigned int canId, const byte *canMsg, unsigned char canMsgSize ){
+  
+  Serial.print( "ID : 0x");
+  if( canId < 1000 ) Serial.print( "0" );
+  if( canId < 100 ) Serial.print( "0" );
+  if( canId < 10 ) Serial.print( "0" );
+  Serial.print( canId, HEX );
+  Serial.print( ", MSG (" );
+  Serial.print( canMsgSize );
+  Serial.print( ") : " );
+  for( int i=0 ; i<canMsgSize ; i++ ){
+    if( canMsg[i] < 0x10 ) Serial.print( "0" );
+    Serial.print( canMsg[i], HEX );
+    if( i < canMsgSize-1 ) Serial.print( "-" );
+  }
+  Serial.println();
+  
+}
 
 void MCP2515_ISR(){
     flagRecv = 1;
@@ -22,6 +39,8 @@ void initCANMasksAndFilters(){
   // Récupération boardId  
   uint16_t boardId;
   EEPROM.get(0, boardId);                 // Récupération id de la carte
+  Serial.print( "BoardId : " );
+  Serial.println( boardId );
   
   // Buffer de récéption RXB0 (1 masque et 2 filtres associés)
   CAN.init_Mask( 0, 0, 0xFFFF );          // Par défaut, le masque 1 bloque tout type d'identifiant, seul les filtres peuvent autoriser les identifiants
@@ -36,9 +55,6 @@ void initCANMasksAndFilters(){
   CAN.init_Filt( 5, 0, 0 );               // Filtre qui n'autorique que l'id 0
 
 }
-
-unsigned long time;
-unsigned long stepTime = 500;
 
 void setup(){
   
@@ -61,38 +77,24 @@ void loop(){
     while( CAN_MSGAVAIL == CAN.checkReceive() ){
 
       // Récupération message
-      CAN.readMsgBuf(&len, buf);
+      unsigned char canMsgSize;
+      unsigned char canMsg[8];
+      CAN.readMsgBuf(&canMsgSize, canMsg);
       unsigned long canId = CAN.getCanId();
 
       // Affichage trame recue
-      Serial.print( "\nNouvelle reception CAN => ID : 0x");
-      if( canId < 1000 ) Serial.print( "0" );
-      if( canId < 100 ) Serial.print( "0" );
-      if( canId < 10 ) Serial.print( "0" );
-      Serial.print( canId, HEX );
-      Serial.print( ", MSG (" );
-      Serial.print( len );
-      Serial.print( ") : " );
-      for( int i=0; i<len; i++ ){
-        if( buf[i] < 0x10 ) Serial.print( "0" );
-        Serial.print( buf[i], HEX );
-        if( i < len-1 ) Serial.print( "-" );
-      }
-      Serial.println();
-      
-    }
-    
-  }
+      Serial.print( "\nNouvelle reception CAN => " );
+      printCANFrame( canId, canMsg, canMsgSize );
 
-  if( millis() > time + stepTime ){
-    time += stepTime;
-    
-    buf[7] = buf[7]+1;  
-    bool sendStatus = CAN.sendMsgBuf( 0x0001, 0, CAN_FRAMESIZE, buf, 0);
-    if( sendStatus == CAN_OK ){
-      Serial.println( "Envoi OK" );
-    } else {
-      Serial.println( "Envoi KO !!!!!" );
+      // Envoi réponse
+      canId = 0x0001;
+      bool sendStatus = CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0);
+      if( sendStatus != CAN_OK ) Serial.println( "Envoi KO !!!!!" );
+      
+      // Affichage trame envoyée
+      Serial.print( "\nNouvelle envoi CAN => " );
+      printCANFrame( canId, canMsg, canMsgSize );
+      
     }
     
   }
