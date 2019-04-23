@@ -4,6 +4,13 @@
 
 #define DEBUG_EN  1
 
+unsigned int cptCanIn, cptCanOut;
+
+#ifdef DEBUG_EN
+unsigned long time;
+unsigned long stepTime = 1000;
+#endif
+
 // Gestion ETHERNET
 
 #define ETH_CS_PIN  9
@@ -102,11 +109,26 @@ void setup(){
 
 void loop(){
 
+  #ifdef DEBUG_EN
+  // Affichage compteur de trames
+  if( millis() > time + stepTime ){
+    time += stepTime;
+
+    Serial.print( "\ncptCan In/Out : " );
+    Serial.print( cptCanIn );
+    Serial.print( " / " );
+    Serial.println( cptCanOut );
+    
+  }
+  #endif
+  
   // Si reception trame CAN
   if( flagRecv ){
     flagRecv = 0;
 
     while( CAN_MSGAVAIL == CAN.checkReceive() ){
+      
+      cptCanIn++;
 
       // Récupération message
       unsigned char canMsgSize;
@@ -115,7 +137,6 @@ void loop(){
       unsigned long canId = CAN.getCanId();
 
       // Affichage trame recue
-      
       #ifdef DEBUG_EN
       Serial.print( "\nNouvelle reception CAN => " );
       printCANFrame( canId, canMsg, canMsgSize );
@@ -149,7 +170,6 @@ void loop(){
     Udp.read(udpPacketBuffer, udpPacketSize);
 
     // Affichage packet recu
-    
     #ifdef DEBUG_EN
     Serial.print( "\nNouvelle reception ETHERNET (taille : " );
     if( udpPacketSize < 10 ) Serial.print( " " );
@@ -174,7 +194,6 @@ void loop(){
       for( uint8_t i=0 ; i<CAN_FRAMESIZE ; i++ ) canMsg[i] = udpPacketBuffer[i + 5];
 
       // Affichage trame CAN à envoyer
-      
       #ifdef DEBUG_EN
       Serial.print( "Nouvel envoi CAN => " );
       printCANFrame( canId, canMsg, CAN_FRAMESIZE );
@@ -182,7 +201,9 @@ void loop(){
 
       // Envoi trame CAN
       bool sendStatus = CAN.sendMsgBuf( canId, 0, CAN_FRAMESIZE, canMsg, 0);
-      if( sendStatus != CAN_OK ){
+      if( sendStatus == CAN_OK ){
+        cptCanOut++;
+      } else {
         #ifdef DEBUG_EN
         Serial.println( "Envoi KO !!!!!" );
         #endif

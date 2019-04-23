@@ -5,7 +5,12 @@
 
 #define DEBUG_EN  1
 
-unsigned int cptMsgIn, cptMsgOut;
+unsigned int cptCanIn, cptCanOut;
+
+#ifdef DEBUG_EN
+unsigned long time;
+unsigned long stepTime = 1000;
+#endif
 
 // Gestion des servos
 
@@ -91,6 +96,19 @@ void setup(){
 }
 
 void loop(){
+
+  #ifdef DEBUG_EN
+  // Affichage compteur de trames
+  if( millis() > time + stepTime ){
+    time += stepTime;
+
+    Serial.print( "\ncptCan In/Out : " );
+    Serial.print( cptCanIn );
+    Serial.print( " / " );
+    Serial.println( cptCanOut );
+    
+  }
+  #endif
   
   // Si reception trame CAN
   if( flagRecv ){
@@ -98,7 +116,7 @@ void loop(){
     
     while( CAN_MSGAVAIL == CAN.checkReceive() ){
 
-      cptMsgIn++;
+      cptCanIn++;
 
       // Récupération message
       unsigned char canMsgSize;
@@ -310,10 +328,10 @@ void loop(){
 //        case DebugAsk : {
 //            canMsg[0] = DebugResponse;
 //            canMsg[1] = servoId;
-//            canMsg[2] = cptMsgIn >> 8;
-//            canMsg[3] = cptMsgIn & 0xFF;
-//            canMsg[4] = cptMsgOut >> 8;
-//            canMsg[5] = cptMsgOut & 0xFF;
+//            canMsg[2] = cptCanIn >> 8;
+//            canMsg[3] = cptCanIn & 0xFF;
+//            canMsg[4] = cptCanOut >> 8;
+//            canMsg[5] = cptCanOut & 0xFF;
 //            canMsgSize = 4;
 //            break;
 //        }
@@ -322,18 +340,19 @@ void loop(){
 
       if( canMsgSize > 0 ){
         
-        // Envoi réponse
         canId = 0x0001;
-        bool sendStatus = CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0);
         
-        // Affichage trame envoyée
+        // Affichage trame CAN à envoyer
         #ifdef DEBUG_EN
         Serial.print( "\nNouvel envoi CAN => " );
         printCANFrame( canId, canMsg, canMsgSize );
         #endif
-
-        // Gestion erreur envoi
-        if( sendStatus != CAN_OK ){
+        
+        // Envoi réponse
+        bool sendStatus = CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0);
+        if( sendStatus == CAN_OK ){
+          cptCanOut++;
+        } else {
           #ifdef DEBUG_EN
           Serial.println( "Envoi KO !!!!!" );
           #endif
