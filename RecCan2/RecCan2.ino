@@ -338,9 +338,8 @@ void loop(){
 
       }
 
+      // Test si réponse à envoyer
       if( canMsgSize > 0 ){
-        
-        canId = 0x0001;
         
         // Affichage trame CAN à envoyer
         #ifdef DEBUG_EN

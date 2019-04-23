@@ -41,31 +41,6 @@ void MCP2515_ISR(){
   flagRecv = 1;
 }
 
-// Fonction qui initialise masques et filtres pour le bus CAN
-void initCANMasksAndFilters() {
-
-  // Récupération boardId
-  uint16_t boardId;
-  EEPROM.get(0, boardId);                 // Récupération id de la carte
-  #ifdef DEBUG_EN
-  Serial.print( "BoardId : " );
-  Serial.println( boardId );
-  #endif
-
-  // Buffer de récéption RXB0 (1 masque et 2 filtres associés)
-  CAN.init_Mask( 0, 0, 0xFFFF );          // Par défaut, le masque 1 bloque tout type d'identifiant, seul les filtres peuvent autoriser les identifiants
-  CAN.init_Filt( 0, 0, boardId );         // Filtre qui n'autorique que l'id de la carte
-  CAN.init_Filt( 1, 0, 0 );               // Filtre qui n'autorique que l'id 0
-
-  // Buffer de récéption RXB1 (1 masque et 4 filtres associés)
-  CAN.init_Mask( 1, 0, 0xFFFF );          // Par défaut, le masque 1 bloque tout type d'identifiant, seul les filtres peuvent autoriser les identifiants
-  CAN.init_Filt( 2, 0, 0 );               // Filtre qui n'autorique que l'id 0
-  CAN.init_Filt( 3, 0, 0 );               // Filtre qui n'autorique que l'id 0
-  CAN.init_Filt( 4, 0, 0 );               // Filtre qui n'autorique que l'id 0
-  CAN.init_Filt( 5, 0, 0 );               // Filtre qui n'autorique que l'id 0
-
-}
-
 #ifdef DEBUG_EN
 void printCANFrame( unsigned int canId, const byte *canMsg, unsigned char canMsgSize ){
   
@@ -98,7 +73,6 @@ void setup(){
   Udp.begin(localPort);
 
   while( CAN_OK != CAN.begin(CAN_500KBPS) ) delay(100);
-  initCANMasksAndFilters();
   attachInterrupt(0, MCP2515_ISR, FALLING);
 
   #ifdef DEBUG_EN
