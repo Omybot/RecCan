@@ -1,8 +1,7 @@
-#include <Ethernet.h>
-#include <EEPROM.h>
-#include "mcp_can.h"
+//#define DEBUG_EN  1
 
-#define DEBUG_EN  1
+#include <Ethernet.h>
+#include "mcp_can.h"
 
 unsigned int cptCanIn, cptCanOut;
 
@@ -110,7 +109,6 @@ void loop(){
       cptCanIn++;
 
       // Récupération message
-      canMsgSize;
       CAN.readMsgBuf(&canMsgSize, canMsg);
       canId = CAN.getCanId();
 

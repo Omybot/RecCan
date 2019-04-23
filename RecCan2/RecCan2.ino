@@ -1,9 +1,9 @@
+//#define DEBUG_EN  1
+
 #include <EEPROM.h>
 #include <mcp_can.h>
 #include "MyServoHandler.h"
 #include "MyServo.h"
-
-#define DEBUG_EN  1
 
 unsigned int cptCanIn, cptCanOut;
 
