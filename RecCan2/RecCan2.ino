@@ -7,10 +7,10 @@
 
 unsigned int cptCanIn, cptCanOut;
 
-#ifdef DEBUG_EN
+//#ifdef DEBUG_EN
 unsigned long time;
 unsigned long stepTime = 1000;
-#endif
+//#endif
 
 // Gestion des servos
 
@@ -20,23 +20,23 @@ ISR(TIMER2_COMPA_vect){ servos.timer2Interrupt(); }
 
 // Gestion CAN
 
-#define CAN_CS_PIN  8
+#define CAN_CS_PIN  10
 #define CAN_FRAMESIZE 8
 
 MCP_CAN CAN(CAN_CS_PIN); 
 
 unsigned char flagRecv = 0;
 
-void MCP2515_ISR(){
-    flagRecv = 1;
-}
+//void MCP2515_ISR(){
+//    flagRecv = 1;
+//}
 
 // Fonction qui initialise masques et filtres pour le bus CAN
 void initCANMasksAndFilters(){
 
   // Récupération boardId  
-  uint16_t boardId;
-  EEPROM.get(0, boardId);                 // Récupération id de la carte
+  uint16_t boardId = 2;
+  //EEPROM.get(0, boardId);                 // Récupération id de la carte
   #ifdef DEBUG_EN
   Serial.print( "BoardId : " );
   Serial.println( boardId );
@@ -77,6 +77,8 @@ void printCANFrame( unsigned int canId, const byte *canMsg, unsigned char canMsg
 }
 #endif
 
+bool state = false;
+
 void setup(){
   
   #ifdef DEBUG_EN
@@ -85,9 +87,12 @@ void setup(){
     
   servos.attach();
 
-  while( CAN_OK != CAN.begin(CAN_500KBPS) ) delay(100);
+  while( CAN_OK != CAN.begin(CAN_500KBPS) ){
+    Serial.println("CAN_KO");
+    delay(100);
+  }
   initCANMasksAndFilters();
-  attachInterrupt(0, MCP2515_ISR, FALLING);
+  //attachInterrupt(0, MCP2515_ISR, FALLING);
 
   #ifdef DEBUG_EN
   Serial.println( "Init OK" );
@@ -97,24 +102,28 @@ void setup(){
 
 void loop(){
 
-  #ifdef DEBUG_EN
   // Affichage compteur de trames
   if( millis() > time + stepTime ){
     time += stepTime;
+    
+    state = !state;
+    digitalWrite(2, state );
 
+    #ifdef DEBUG_EN
     Serial.print( "\ncptCan In/Out : " );
     Serial.print( cptCanIn );
     Serial.print( " / " );
     Serial.println( cptCanOut );
+    Serial.println( servos.getPosition(0) );
+    #endif
     
   }
-  #endif
   
-  // Si reception trame CAN
-  if( flagRecv ){
-    flagRecv = 0;
+//  // Si reception trame CAN
+//  if( flagRecv ){
+//    flagRecv = 0;
     
-    while( CAN_MSGAVAIL == CAN.checkReceive() ){
+    if( CAN_MSGAVAIL == CAN.checkReceive() ){
 
       cptCanIn++;
 
@@ -361,6 +370,6 @@ void loop(){
 
     }
     
-  }
+  //}
   
 }

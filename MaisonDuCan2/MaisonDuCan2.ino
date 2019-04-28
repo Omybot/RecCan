@@ -5,20 +5,20 @@
 
 unsigned int cptCanIn, cptCanOut;
 
-#ifdef DEBUG_EN
 unsigned long time;
 unsigned long stepTime = 1000;
-#endif
 
 // Gestion ETHERNET
 
 #define ETH_CS_PIN  9
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};                // Adresse mac de la Maison du Can
-IPAddress localIp(192, 168, 1, 15);                               // Adresse ip de la Maison du Can
-IPAddress remoteIp(192, 168, 1, 26);                              // Adresse ip de la Maison du Can
+//IPAddress localIp(192, 168, 1, 15);                               // Adresse ip de la Maison du Can
+//IPAddress remoteIp(192, 168, 1, 26);                              // Adresse ip de Gobot
+IPAddress localIp(10, 1, 0, 15);                               // Adresse ip de la Maison du Can
+IPAddress remoteIp(10, 1, 0, 2);                              // Adresse ip de Gobot
 unsigned int localPort = 12315;                                   // port sur lequel écouter
-unsigned int remotePort = 64144;
+unsigned int remotePort = 12325;
 
 byte udpId = 0xC5;                                                // Identifiant Udp de la Maison du CAN
 byte udpEnvoiCan = 0xC0;                                          // Commande Udp utilisée pour les envoi CAN
@@ -66,6 +66,8 @@ void printCANFrame( unsigned int canId, const byte *canMsg, unsigned char canMsg
 }
 #endif
 
+bool state = false;
+
 void setup(){
 
   #ifdef DEBUG_EN
@@ -87,24 +89,24 @@ void setup(){
 
 void loop(){
 
-  #ifdef DEBUG_EN
   // Affichage compteur de trames
   if( millis() > time + stepTime ){
     time += stepTime;
-
+    
+    #ifdef DEBUG_EN
     Serial.print( "\ncptCan In/Out : " );
     Serial.print( cptCanIn );
     Serial.print( " / " );
     Serial.println( cptCanOut );
+    #endif
     
   }
-  #endif
   
   // Si reception trame CAN
-  if( flagRecv ){
-    flagRecv = 0;
+//  if( flagRecv ){
+//    flagRecv = 0;
 
-    while( CAN_MSGAVAIL == CAN.checkReceive() ){
+    if( CAN_MSGAVAIL == CAN.checkReceive() ){
       
       cptCanIn++;
 
@@ -121,22 +123,24 @@ void loop(){
       // Envoi sur le réseau Ethernet
       udpPacketBuffer[0] = udpId;
       udpPacketBuffer[1] = udpReponseCan;
-      udpPacketBuffer[2] = canMsgSize+2;
+      udpPacketBuffer[2] = 0x0A;//udpPacketBuffer[2] = canMsgSize+2;
       udpPacketBuffer[3] = canId / 0x100;
       udpPacketBuffer[4] = canId % 0x100;
       for( int i=0 ; i<canMsgSize ; i++ ) udpPacketBuffer[i+5] = canMsg[i];
       Udp.beginPacket(remoteIp, remotePort);
-      Udp.write(udpPacketBuffer, canMsgSize+5);
+      Udp.write(udpPacketBuffer, 13);//Udp.write(udpPacketBuffer, canMsgSize+5);
       Udp.endPacket();
 
     }
 
-  }
+  //}
 
   // Si reception packet ETHERNET
   int udpPacketSize = Udp.parsePacket();                          // Test si paquet Ethernet recu
   if( udpPacketSize ){
-
+    
+    remoteIp = Udp.remoteIP();
+    
     // Récupération du packet ETHERNET
     Udp.read(udpPacketBuffer, udpPacketSize);
 
@@ -183,20 +187,20 @@ void loop(){
         udpPacketBuffer[0] = 0xFF;
         udpPacketSize = 1;
         Udp.beginPacket(remoteIp, remotePort);
-        Udp.write(udpPacketBuffer, udpPacketSize);
+        Udp.write(udpPacketBuffer, 13);//Udp.write(udpPacketBuffer, udpPacketSize);
         Udp.endPacket();
       }
-
+       
     } else {
-
-      #ifdef DEBUG_EN
-      Serial.println( "Retour packet à l'envoyeur" );
-      #endif
-
-      // Renvoi packet ethernet à l'envoyeur
-      Udp.beginPacket(remoteIp, remotePort);
-      Udp.write(udpPacketBuffer, udpPacketSize);
-      Udp.endPacket();
+      
+        #ifdef DEBUG_EN
+        Serial.println( "Retour packet à l'envoyeur" );
+        #endif
+  
+        // Renvoi packet ethernet à l'envoyeur
+        Udp.beginPacket(remoteIp, remotePort);
+        Udp.write(udpPacketBuffer, udpPacketSize);
+        Udp.endPacket();
 
     }
 

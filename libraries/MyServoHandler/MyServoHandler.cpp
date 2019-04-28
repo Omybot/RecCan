@@ -1,14 +1,23 @@
 #include <MyServoHandler.h>
 
-#define OUT_PIN_SERVO_0 10
-#define OUT_PIN_SERVO_1 9
-#define OUT_PIN_SERVO_2 6
-#define OUT_PIN_SERVO_3 5
+//#define OUT_PIN_SERVO_0 10
+//#define OUT_PIN_SERVO_1 9
+//#define OUT_PIN_SERVO_2 6
+//#define OUT_PIN_SERVO_3 5
 
-#define ANALOG_PIN_SERVO_0 A0
-#define ANALOG_PIN_SERVO_1 A1
-#define ANALOG_PIN_SERVO_2 A2
-#define ANALOG_PIN_SERVO_3 A3
+//#define ANALOG_PIN_SERVO_0 A0
+//#define ANALOG_PIN_SERVO_1 A1
+//#define ANALOG_PIN_SERVO_2 A2
+//#define ANALOG_PIN_SERVO_3 A3
+
+#define OUT_PIN_SERVO_0 5
+#define OUT_PIN_SERVO_1 6
+#define OUT_PIN_SERVO_2 7
+#define OUT_PIN_SERVO_3 8
+#define ANALOG_PIN_SERVO_0 A2
+#define ANALOG_PIN_SERVO_1 A3
+#define ANALOG_PIN_SERVO_2 A4
+#define ANALOG_PIN_SERVO_3 A5
 
 MyServoHandler::MyServoHandler(){
 }

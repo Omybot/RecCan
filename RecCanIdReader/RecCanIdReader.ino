@@ -12,4 +12,8 @@ void setup(){
 }
 
 void loop() {
+
+  Serial.println( canId );
+  delay(500);
+  
 }

@@ -18,6 +18,8 @@ ISR(TIMER1_COMPA_vect){ servos.timer1Interrupt(); }
 ISR(TIMER2_COMPA_vect){ servos.timer2Interrupt(); }
 
 void setup(){
+
+  Serial.begin(500000);
   
   // Gestion des pins
   servos.attach();
@@ -30,6 +32,7 @@ void setup(){
 
   response.id = boardId;                              // Les packet CAN que la carte enverra auront l'id de la carte
 
+  Serial.println( "ok");
 }
 
 void loop(){

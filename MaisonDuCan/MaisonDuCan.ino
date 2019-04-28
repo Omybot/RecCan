@@ -5,7 +5,7 @@
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};                // Adresse mac de la Maison du Can
 IPAddress localIp(192, 168, 1, 15);                               // Adresse ip de la Maison du Can
-IPAddress remoteIp(192, 168, 1, 27);                              // Adresse ip de la Maison du Can
+IPAddress remoteIp(192, 168, 1, 26);                              // Adresse ip de la Maison du Can
 unsigned int localPort = 12315;                                   // port sur lequel écouter
 unsigned int remotePort = 12325;                                  // port avec lequel envoyer
 
@@ -27,11 +27,15 @@ void sendCanPacketToEth( canPacket p );                           // Fonction qu
 //////////////////////////////////////////////////////
 
 void setup() {  
+
+  Serial.begin(500000);
   
   CAN.begin(CAN_125KBPS, MCP_8MHz);                               // Initialisation controleur CAN
 
   Ethernet.begin(mac, localIp);                                   // Initialisation connection Ethernet
   Udp.begin(localPort);
+
+  Serial.println("ok");
 
 }
 
