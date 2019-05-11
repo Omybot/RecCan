@@ -47,7 +47,7 @@ void MCP2515_ISR(){
 
 #ifdef DEBUG_EN
 void printCANFrame( unsigned int canId, const byte *canMsg, unsigned char canMsgSize ){
-  
+
   Serial.print( "ID : 0x");
   if( canId < 1000 ) Serial.print( "0" );
   if( canId < 100 ) Serial.print( "0" );
@@ -62,7 +62,7 @@ void printCANFrame( unsigned int canId, const byte *canMsg, unsigned char canMsg
     if( i < canMsgSize-1 ) Serial.print( "-" );
   }
   Serial.println();
-  
+
 }
 #endif
 
@@ -85,6 +85,29 @@ void setup(){
   Serial.println( "Init OK" );
   #endif
 
+  // Envoi trame bibon au début
+  udpPacketBuffer[0] = udpId;
+  udpPacketBuffer[1] = udpEnvoiCan;
+  udpPacketBuffer[2] = 2;
+  udpPacketBuffer[3] = 0xC5;
+  udpPacketBuffer[4] = 0xF0;
+
+  Udp.beginPacket(remoteIp, remotePort);
+  Udp.write(udpPacketBuffer, 5);
+  Udp.endPacket();
+   delay(1000);
+
+   // Envoi trame bibon au début
+   udpPacketBuffer[0] = udpId;
+   udpPacketBuffer[1] = udpEnvoiCan;
+   udpPacketBuffer[2] = 2;
+   udpPacketBuffer[3] = 0xC5;
+   udpPacketBuffer[4] = 0xF0;
+
+   Udp.beginPacket(remoteIp, remotePort);
+   Udp.write(udpPacketBuffer, 5);
+   Udp.endPacket();
+
 }
 
 void loop(){
@@ -92,22 +115,22 @@ void loop(){
   // Affichage compteur de trames
   if( millis() > time + stepTime ){
     time += stepTime;
-    
+
     #ifdef DEBUG_EN
     Serial.print( "\ncptCan In/Out : " );
     Serial.print( cptCanIn );
     Serial.print( " / " );
     Serial.println( cptCanOut );
     #endif
-    
+
   }
-  
+
   // Si reception trame CAN
 //  if( flagRecv ){
 //    flagRecv = 0;
 
     if( CAN_MSGAVAIL == CAN.checkReceive() ){
-      
+
       cptCanIn++;
 
       // Récupération message
@@ -138,9 +161,9 @@ void loop(){
   // Si reception packet ETHERNET
   int udpPacketSize = Udp.parsePacket();                          // Test si paquet Ethernet recu
   if( udpPacketSize ){
-    
+
     remoteIp = Udp.remoteIP();
-    
+
     // Récupération du packet ETHERNET
     Udp.read(udpPacketBuffer, udpPacketSize);
 
@@ -190,13 +213,13 @@ void loop(){
         Udp.write(udpPacketBuffer, 13);//Udp.write(udpPacketBuffer, udpPacketSize);
         Udp.endPacket();
       }
-       
+
     } else {
-      
+
         #ifdef DEBUG_EN
         Serial.println( "Retour packet à l'envoyeur" );
         #endif
-  
+
         // Renvoi packet ethernet à l'envoyeur
         Udp.beginPacket(remoteIp, remotePort);
         Udp.write(udpPacketBuffer, udpPacketSize);
