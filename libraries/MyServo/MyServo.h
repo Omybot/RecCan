@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-enum ServoFunction : byte {	
+enum ServoFunction : byte {
 	PositionAsk = 0x01,
 	PositionResponse = 0x02,
 	PositionSet = 0x03,
@@ -19,7 +19,7 @@ enum ServoFunction : byte {
 	SpeedLimitSet = 0x0C,
 	TorqueLimitAsk = 0x0D,
 	TorqueLimitResponse = 0x0E,
-	TorqueLimitSet = 0x0F, 
+	TorqueLimitSet = 0x0F,
 	TorqueAsk = 0x10,
 	TorqueResponse = 0x11,
 	AccelerationAsk = 0x12,
@@ -29,16 +29,19 @@ enum ServoFunction : byte {
 	TrajectorySet = 0x16
 };
 
-#define DEFAULT_POSITIONMIN 10000
-#define DEFAULT_POSITIONMAX 30000
+const uint16_t DEFAULT_POSITIONMIN = 10000;
+const uint16_t DEFAULT_POSITIONMAX = 30000;
+const float DEFAULT_SPEED_LIMIT = 60000.0;
+const float DEFAULT_ACCELERATION = 0.0;
+const float DEFAULT_TORQUE_LIMIT = 0.0;
 
 class MyServo {
-	
+
 	public :
-	
+
 		MyServo();
 		~MyServo();
-		
+
 		// Initialisation
 		void attach( int outputPin, int analogPin, int servoNum );
 
@@ -62,15 +65,15 @@ class MyServo {
 		// Mesure du couple
 		void updateTorque();
 		float getTorque();
-		
+
 		// Gestion position/vitesse
 		void setPosition( float position );
 		float getPosition();
 		float getSpeed();
 		float calcNextPosition();						// Routine de calcul position (doit etre appelée toutes les 20 ms)
-		
+
 	private :
-	
+
 		int _outputPin;
 		int _analogPin;
 		int _servoNum;
@@ -89,7 +92,7 @@ class MyServo {
 		float _startPosition;
 
 		float _trajectoryTime;
-	
+
 };
 
 #endif

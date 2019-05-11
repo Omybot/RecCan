@@ -34,7 +34,7 @@ void MyServoHandler::attach(){
 	_servos[1].attach(OUT_PIN_SERVO_1, ANALOG_PIN_SERVO_1, 1);
 	_servos[2].attach(OUT_PIN_SERVO_2, ANALOG_PIN_SERVO_2, 2);
 	_servos[3].attach(OUT_PIN_SERVO_3, ANALOG_PIN_SERVO_3, 3);
-	
+
 	initTimer1();
 	initTimer2();
 }
@@ -139,7 +139,7 @@ void MyServoHandler::initTimer1(){
 	TCNT1  = 0;
 	TCCR1B |= (1 << WGM12);				// CTC mode
 	TIMSK1 |= (1 << OCIE1A);			// enable timer compare interrupt
-	interrupts(); 
+	interrupts();
 }
 
 void MyServoHandler::rearmTimer1( float code ){
@@ -159,18 +159,18 @@ void MyServoHandler::initTimer2(){
 	TCCR2B |= (1 << CS21);
 	TCCR2B |= (1 << CS20);
 	TIMSK2 |= (1 << OCIE2A);			// enable timer compare interrupt
-	interrupts();  
+	interrupts();
 }
 
 void MyServoHandler::handleNextServo(){
-	
+
 	_currentServo = (_currentServo+1) % 4;						// Determine le servo suivant
-	
+
 	float newPos = _servos[_currentServo].calcNextPosition();	// Calcul la nouvelle position
-	
+
 	if( newPos != 0 ){
 		rearmTimer1( newPos );									// Timer1 comme chronometre pour compter temps sortie servo état haut
 		_servos[_currentServo].setOutputHigh();					// Sortie servo à l'état haut
 	}
-	
+
 }

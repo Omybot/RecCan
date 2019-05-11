@@ -11,10 +11,10 @@ MyServo::~MyServo(){
 ////////////////////////////////////////
 
 void MyServo::attach( int outputPin, int analogPin, int servoNum ){
-	
+
 	_outputPin = outputPin;
 	pinMode( _outputPin, OUTPUT );
-	
+
 	_analogPin = analogPin;
 	pinMode( _analogPin, INPUT );
 
@@ -28,12 +28,15 @@ void MyServo::attach( int outputPin, int analogPin, int servoNum ){
 	EEPROM.get( 0x10*(_servoNum+1)+12, _torqueLimit);
 
 	// Sécurité si eeprom pas initialisée
-	if( _positionMin >= 0xFFFF ){ _positionMin = DEFAULT_POSITIONMIN; EEPROM.put( 0x10*(_servoNum+1), 0 ); }
-	if( _positionMax == 0xFFFF ){ _positionMax = DEFAULT_POSITIONMAX; EEPROM.put( 0x10*(_servoNum+1)+2, 0 ); }
-	if( _speedLimit == 0xFFFF ){ _speedLimit = 0; EEPROM.put( 0x10*(_servoNum+1)+4, 0 ); }
-	if( _acceleration == 0xFFFF ){ _acceleration = 0; EEPROM.put( 0x10*(_servoNum+1)+8, 0 ); }
-	if( _torqueLimit == 0xFFFF ){ _torqueLimit = 0; EEPROM.put( 0x10*(_servoNum+1)+12, 0 ); }
-	
+	if( _positionMin == 0xFFFF ) setPositionMin( DEFAULT_POSITIONMIN );
+	if( _positionMax == 0xFFFF ) setPositionMax( DEFAULT_POSITIONMAX );
+	if( _speedLimit == 0xFFFF || _speedLimit == 0 ) setSpeedLimit( DEFAULT_SPEED_LIMIT );
+	if( _acceleration == 0xFFFF ) setAcceleration( DEFAULT_ACCELERATION );
+	if( _torqueLimit == 0xFFFF ) setTorqueLimit( DEFAULT_TORQUE_LIMIT );
+
+	_speedLimit = 60000.0;	// Force speed
+	_speed = 60000.0;
+
 }
 
 ////////////////////////////////////////
@@ -47,28 +50,28 @@ void MyServo::setOutputLow(){ digitalWrite( _outputPin, LOW ); }
 // Parametres servo
 ////////////////////////////////////////
 
-void MyServo::setPositionMin( uint16_t positionMin ){ 
-	_positionMin = positionMin; 
+void MyServo::setPositionMin( uint16_t positionMin ){
+	_positionMin = positionMin;
 	EEPROM.put( 0x10*(_servoNum+1), _positionMin);
 }
 
-void MyServo::setPositionMax( uint16_t positionMax ){ 
-	_positionMax = positionMax; 
+void MyServo::setPositionMax( uint16_t positionMax ){
+	_positionMax = positionMax;
 	EEPROM.put( 0x10*(_servoNum+1)+2, _positionMax);
 }
 
-void MyServo::setSpeedLimit( float speedLimit ){ 
-	_speedLimit = speedLimit; 
+void MyServo::setSpeedLimit( float speedLimit ){
+	_speedLimit = speedLimit;
 	EEPROM.put( 0x10*(_servoNum+1)+4, _speedLimit);
 }
 
-void MyServo::setAcceleration( float acceleration ){ 
-	_acceleration = acceleration; 
+void MyServo::setAcceleration( float acceleration ){
+	_acceleration = acceleration;
 	EEPROM.put( 0x10*(_servoNum+1)+8, _acceleration);
 }
 
 void MyServo::setTorqueLimit( float torqueLimit ){
-	_torqueLimit = torqueLimit; 
+	_torqueLimit = torqueLimit;
 	EEPROM.put( 0x10*(_servoNum+1)+12, _torqueLimit);
 }
 
@@ -106,7 +109,7 @@ float MyServo::getPosition(){
 }
 
 float MyServo::getSpeed(){
-	return _speed;
+	return _speed;						//TODO: A changer quand l'acceleration sera ok
 }
 
 float MyServo::calcNextPosition(){
@@ -131,5 +134,5 @@ float MyServo::calcNextPosition(){
 	if( _position < _positionMin ) _position = _positionMin;
 
 	return _position;
-}
 
+}
