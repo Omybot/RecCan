@@ -5,6 +5,9 @@
 
 unsigned int cptCanIn, cptCanOut;
 
+#define LED_PIN 2
+bool LedState;
+
 unsigned long time;
 unsigned long stepTime = 1000;
 
@@ -41,9 +44,9 @@ unsigned char canMsgSize;
 uint8_t canMsg[CAN_MAX_FRAMESIZE];
 unsigned char flagRecv = 0;
 
-void MCP2515_ISR(){
-  flagRecv = 1;
-}
+// void MCP2515_ISR(){
+//   flagRecv = 1;
+// }
 
 #ifdef DEBUG_EN
 void printCANFrame( unsigned int canId, const byte *canMsg, unsigned char canMsgSize ){
@@ -70,6 +73,8 @@ bool state = false;
 
 void setup(){
 
+  //pinMode( LED_PIN, OUTPUT );
+
   #ifdef DEBUG_EN
   Serial.begin(500000);
   #endif
@@ -79,7 +84,7 @@ void setup(){
   Udp.begin(localPort);
 
   while( CAN_OK != CAN.begin(CAN_500KBPS) ) delay(100);
-  attachInterrupt(0, MCP2515_ISR, FALLING);
+  //attachInterrupt(0, MCP2515_ISR, FALLING);
 
   #ifdef DEBUG_EN
   Serial.println( "Init OK" );
@@ -116,12 +121,26 @@ void loop(){
   if( millis() > time + stepTime ){
     time += stepTime;
 
+    // LedState != LedState;
+    // digitalWrite( LED_PIN, LedState );
+
     #ifdef DEBUG_EN
     Serial.print( "\ncptCan In/Out : " );
     Serial.print( cptCanIn );
     Serial.print( " / " );
     Serial.println( cptCanOut );
     #endif
+
+       // Envoi trame bibon au début
+       udpPacketBuffer[0] = udpId;
+       udpPacketBuffer[1] = udpEnvoiCan;
+       udpPacketBuffer[2] = 2;
+       udpPacketBuffer[3] = 0xFF;
+       udpPacketBuffer[4] = 0xFF;
+
+       Udp.beginPacket(remoteIp, remotePort);
+       Udp.write(udpPacketBuffer, 5);
+       Udp.endPacket();
 
   }
 
@@ -207,11 +226,11 @@ void loop(){
         #ifdef DEBUG_EN
         Serial.println( "Envoi KO !!!!!" );
         #endif
-        udpPacketBuffer[0] = 0xFF;
-        udpPacketSize = 1;
-        Udp.beginPacket(remoteIp, remotePort);
-        Udp.write(udpPacketBuffer, 13);//Udp.write(udpPacketBuffer, udpPacketSize);
-        Udp.endPacket();
+        // udpPacketBuffer[0] = 0xFF;
+        // udpPacketSize = 1;
+        // Udp.beginPacket(remoteIp, remotePort);
+        // Udp.write(udpPacketBuffer, 13);//Udp.write(udpPacketBuffer, udpPacketSize);
+        // Udp.endPacket();
       }
 
     } else {
