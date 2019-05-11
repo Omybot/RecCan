@@ -1,6 +1,7 @@
 #include <MyServo.h>
 
 MyServo::MyServo(){
+	_enable = false;
 }
 
 MyServo::~MyServo(){
@@ -99,6 +100,7 @@ float MyServo::getTorque(){ return _torque; }
 ////////////////////////////////////////
 
 void MyServo::setPosition( float position ){
+	_enable = true;
 	_targetPosition = position;
 	_startPosition = _position;
 	_trajectoryTime = 0;
@@ -121,7 +123,6 @@ float MyServo::calcNextPosition(){
 		_position = _startPosition + _speedLimit * _trajectoryTime;
 		if( _position > _targetPosition ) _position = _targetPosition;
 
-
 	} else if( _targetPosition < _startPosition ){
 
 		_position = _startPosition - _speedLimit * _trajectoryTime;
@@ -132,6 +133,8 @@ float MyServo::calcNextPosition(){
 	// Limite de position
 	if( _position > _positionMax ) _position = _positionMax;
 	if( _position < _positionMin ) _position = _positionMin;
+
+	if( !_enable ) return 0.0;
 
 	return _position;
 

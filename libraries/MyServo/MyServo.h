@@ -93,6 +93,8 @@ class MyServo {
 
 		float _trajectoryTime;
 
+		bool _enable;
+
 };
 
 #endif
