@@ -26,7 +26,8 @@ enum ServoFunction : byte {
 	AccelerationResponse = 0x13,
 	AccelerationSet = 0x14,
 	TargetSet = 0x15,
-	TrajectorySet = 0x16
+	TrajectorySet = 0x16,
+	DisableOutput = 0x17
 };
 
 const uint16_t DEFAULT_POSITIONMIN = 10000;
@@ -48,6 +49,10 @@ class MyServo {
 		// Gestion pin de sortie
 		void setOutputHigh();
 		void setOutputLow();
+
+		// Gestion puissance en sortie
+		void enableOutput();
+		void disableOutput();
 
 		// Parametres servo
 		void setPositionMin( uint16_t positionMin );

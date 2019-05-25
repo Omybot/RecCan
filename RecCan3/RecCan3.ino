@@ -197,6 +197,11 @@ void loop(){
           break;
         }
 
+       case DisableOutput : {  // 0x17
+           servos.disableOutput(servoId);
+         break;
+       }
+
 //        case Debug : {
 //            break;
 //        }

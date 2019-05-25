@@ -84,6 +84,17 @@ float MyServoHandler::getTorqueLimit( byte servoNumber ){
 }
 
 ////////////////////////////////////////
+// Gestion puissance de sortie
+////////////////////////////////////////
+void MyServoHandler::enableOutput( byte servoNumber ){
+	_servos[servoNumber].enableOutput();
+}
+
+void MyServoHandler::disableOutput( byte servoNumber ){
+	_servos[servoNumber].disableOutput();
+}
+
+////////////////////////////////////////
 // Gestion position/trajectoire
 ////////////////////////////////////////
 

@@ -48,6 +48,12 @@ void MyServo::setOutputHigh(){ digitalWrite( _outputPin, HIGH ); }
 void MyServo::setOutputLow(){ digitalWrite( _outputPin, LOW ); }
 
 ////////////////////////////////////////
+// Gestion puissance en sortie
+////////////////////////////////////////
+void MyServo::enableOutput(){ _enable = true; }
+void MyServo::disableOutput(){ _enable = false; }
+
+////////////////////////////////////////
 // Parametres servo
 ////////////////////////////////////////
 
@@ -100,7 +106,7 @@ float MyServo::getTorque(){ return _torque; }
 ////////////////////////////////////////
 
 void MyServo::setPosition( float position ){
-	_enable = true;
+	enableOutput();
 	_targetPosition = position;
 	_startPosition = _position;
 	_trajectoryTime = 0;
