@@ -20,12 +20,12 @@ Carte N°3
 
 Carte N°4
 12 - Pince goldenium D.		5000	29800
-13 - Bras goldenium D.		?		?
+13 - Bras goldenium D.		11600	36000
 14 - Bras goldenium G.		?		?
 15 - Pince goldenium G.		?		?
 
 Carte N°5						?		?
-16 - ClampLeft 				15700	33000
+16 - ClampLeft 				12800	28700
 17 -								?		?
 18 - Elevation 				17500	40000
-19 - ClampRight 				17000	35300
+19 - ClampRight 				?		?
