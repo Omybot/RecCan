@@ -36,7 +36,7 @@ const uint16_t DEFAULT_POSITIONMIN = 1000;
 const uint16_t DEFAULT_POSITIONMAX = 60000;
 const float DEFAULT_SPEED_LIMIT = 60000.0;
 const float DEFAULT_ACCELERATION = 60000.0;
-const unsigned int DEFAULT_TORQUE_LIMIT = 500;
+const unsigned int DEFAULT_TORQUE_LIMIT = 100;	// 100mA Maxi
 
 class MyServo {
 
