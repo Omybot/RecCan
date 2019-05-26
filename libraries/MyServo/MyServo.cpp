@@ -29,14 +29,13 @@ void MyServo::attach( int outputPin, int analogPin, int servoNum ){
 	EEPROM.get( 0x10*(_servoNum+1)+12, _torqueLimit);
 
 	// Sécurité si eeprom pas initialisée
-	if( _positionMin == 0xFFFF ) setPositionMin( DEFAULT_POSITIONMIN );
-	if( _positionMax == 0xFFFF ) setPositionMax( DEFAULT_POSITIONMAX );
-	if( _speedLimit == 0xFFFF || _speedLimit == 0 ) setSpeedLimit( DEFAULT_SPEED_LIMIT );
-	if( _acceleration == 0xFFFF ) setAcceleration( DEFAULT_ACCELERATION );
-	if( _torqueLimit == 0xFFFF ) setTorqueLimit( DEFAULT_TORQUE_LIMIT );
+	if( _positionMin == 0xFFFF || isnan(_positionMin) ) setPositionMin( DEFAULT_POSITIONMIN );
+	if( _positionMax == 0xFFFF || _positionMax == 0 || isnan(_positionMax) ) setPositionMax( DEFAULT_POSITIONMAX );
+	if( _speedLimit == 0xFFFF || _speedLimit == 0 || isnan(_speedLimit) ) setSpeedLimit( DEFAULT_SPEED_LIMIT );
+	if( _acceleration == 0xFFFF || _acceleration == 0 || isnan(_acceleration) ) setAcceleration( DEFAULT_ACCELERATION );
+	if( _torqueLimit == 0xFFFF || _torqueLimit == 0 || isnan(_torqueLimit)) setTorqueLimit( DEFAULT_TORQUE_LIMIT );
 
-	_speedLimit = 60000.0;	// Force speed
-	_speed = 60000.0;
+	_speed = _speedLimit;
 
 }
 

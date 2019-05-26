@@ -8,6 +8,11 @@ const uint16_t boardId = 5;																		// Id de la carte
 unsigned long time;
 unsigned long stepTime = 1000;
 
+unsigned long timeTorque;
+unsigned long stepTimeTorque = 100;
+float torqueBuf[4];
+byte avgCounter;
+
 // Gestion des servos
 
 MyServoHandler servos;
@@ -51,15 +56,41 @@ void setup(){
 
 void loop(){
 
-	// Affichage compteur de trames
+	if( millis() > timeTorque + stepTimeTorque ){
+		timeTorque += stepTimeTorque;
+
+		for( int j=0 ; j<4 ; j++ )	torqueBuf[j] += servos.getTorque(j);
+		avgCounter++;
+
+	}
+
 	if( millis() > time + stepTime ){
 		time += stepTime;
 
 		state = !state;
 		digitalWrite(2, state );
 
-	}
+		// Calcul moyenne du couple
+		for( int i=0 ; i<4 ; i++ ){
+			if( avgCounter != 0 ){
+				unsigned int avg = torqueBuf[i] / avgCounter;
+				if( torqueBuf[i] > servos.getTorqueLimit(i) ){
+					// Envoi message couple dépassé sur la derniere seconde
+					unsigned long canId = boardId;
+					unsigned char canMsgSize = 4;
+					unsigned char canMsg[8];
+					canMsg[0] = TorqueAlert;
+					canMsg[1] = i;
+					canMsg[2] = avg >> 8;
+					canMsg[3] = avg && 0xFF;
+					CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 1);
+				}
+				torqueBuf[i] = 0;
+				avgCounter = 0;
+			}
+		}
 
+	}
 
 	if( CAN_MSGAVAIL == CAN.checkReceive() ){
 

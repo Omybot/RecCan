@@ -27,14 +27,15 @@ enum ServoFunction : byte {
 	AccelerationSet = 0x14,
 	TargetSet = 0x15,
 	TrajectorySet = 0x16,
-	DisableOutput = 0x17
+	DisableOutput = 0x17,
+	TorqueAlert = 0x18
 };
 
 const uint16_t DEFAULT_POSITIONMIN = 10000;
 const uint16_t DEFAULT_POSITIONMAX = 30000;
 const float DEFAULT_SPEED_LIMIT = 60000.0;
-const float DEFAULT_ACCELERATION = 0.0;
-const float DEFAULT_TORQUE_LIMIT = 0.0;
+const float DEFAULT_ACCELERATION = 60000.0;
+const float DEFAULT_TORQUE_LIMIT = 50.0;
 
 class MyServo {
 
