@@ -1,120 +1,135 @@
-#include <SPI.h>
-#include <Ethernet2.h>
-#include <EthernetUdp2.h>                                         // UDP library from: bjoern@cs.stanford.edu 12/30/2008
-#include "Can.h"
+#include <Ethernet.h>
+#include "mcp_can.h"
 
-byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};                // Adresse mac de la Maison du Can
-IPAddress localIp(192, 168, 1, 15);                               // Adresse ip de la Maison du Can
-IPAddress remoteIp(192, 168, 1, 26);                              // Adresse ip de la Maison du Can
-unsigned int localPort = 12315;                                   // port sur lequel écouter
-unsigned int remotePort = 12325;                                  // port avec lequel envoyer
+/////////////////////////////////
+// Gestion ETHERNET
+/////////////////////////////////
 
-byte udpId = 0xC5;                                                // Identifiant Udp
-byte udpEnvoiCan = 0xC0;                                          // Commande Udp utilisée pour les envoi CAN
-byte udpReponseCan = 0xC1;                                        // Commande Udp utilisée pour les retours CAN
+#define ETH_CS_PIN  				9																	// Chip select du composant W5500
+#define ETH_MAX_PACKETSIZE 	13																	// Taille maximale d'un paquet ethernet
 
-unsigned int retryCanSendTimeout = 100;                           // Temps max (ms) que doit prendre un envoi sur bus CAN
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};											// Adresse mac de la Maison du Can
+IPAddress localIp( 10, 1, 0, 15 );																// Adresse ip de la Maison du Can
+IPAddress remoteIp( 10, 1, 0, 2 );																// Adresse ip de Gobot
+unsigned int localPort = 12315;																	// port sur lequel écouter
+unsigned int remotePort = 12325;
 
-EthernetUDP Udp;                                                  // An EthernetUDP instance to let us send and receive packets over UDP
+const byte udpId = 0xC5;																					// Identifiant Udp de la Maison du CAN
+const byte udpEnvoiCan = 0xC0;																			// Commande Udp utilisée pour les envoi CAN
+const byte udpReponseCan = 0xC1;																			// Commande Udp utilisée pour les retours CAN
 
-void handleCanPackets();                                          // Fonction qui récupère les packets CAN et les envoient sur Ethernet en UDP tant qu'il y en a
+EthernetUDP Udp;																						// An EthernetUDP instance to let us send and receive packets over UDP
 
-void sendBufferToEth( uint8_t *udpBuffer, int bufSize );          // Fonction qui permet d'envoyer un buffer de taille définie sur le réseau Ethernet en UDP
-void sendCanPacketToEth( canPacket p );                           // Fonction qui permet d'envoyer un paquet CAN ( 2 octets pour id + 8 octets pour message ) sur le réseau Ethernet en UDP en ajoutant l'entête des cartes RecCan
+/////////////////////////////////
+// Gestion CAN
+/////////////////////////////////
 
-//////////////////////////////////////////////////////
+#define CAN_CS_PIN  				10																	// Chip select du composant MCP2515
+#define CAN_MAX_FRAMESIZE 		8																	// Taille maximale d'une trame CAN
+
+MCP_CAN CAN( CAN_CS_PIN );																			// Instance de MCP_CAN qui permet de gérer les communications CAN
+
+/////////////////////////////////
 // SETUP
-//////////////////////////////////////////////////////
+/////////////////////////////////
 
-void setup() {  
+void setup(){
 
-  Serial.begin(500000);
-  
-  CAN.begin(CAN_125KBPS, MCP_8MHz);                               // Initialisation controleur CAN
+	delay(200);
 
-  Ethernet.begin(mac, localIp);                                   // Initialisation connection Ethernet
-  Udp.begin(localPort);
+	// Init CAN
+	while( CAN_OK != CAN.begin(CAN_500KBPS) ) delay(100);									// Initialisation communication CAN
 
-  Serial.println("ok");
+	delay(200);
+
+	// Init ETH
+	Ethernet.init( ETH_CS_PIN );																	// Réglage chip select ethernet
+	Ethernet.begin( mac, localIp );																// Initialisation connection Ethernet avec adresse MAC et IP
+	while( Udp.begin( localPort ) != 1 ) delay(100);										// Initialisation communication udp sur le port désiré
+
+	delay(200);
+
+	// Envoi trame bibon au début
+	byte udpPacketBuffer[2];
+	udpPacketBuffer[0] = udpId;
+	udpPacketBuffer[1] = 0xFF;
+	Udp.beginPacket( remoteIp, remotePort );
+	Udp.write( udpPacketBuffer, 2 );
+	Udp.endPacket();
+
+	delay(200);
 
 }
 
-//////////////////////////////////////////////////////
+/////////////////////////////////
 // LOOP
-//////////////////////////////////////////////////////
+/////////////////////////////////
 
-void loop() {
+void loop(){
 
-  // CAN -> ETH
-  handleCanPackets();                                             // 500 µs maxi depuis dernier check
+	// Test reception nouvelle trame CAN
+	if( CAN_MSGAVAIL == CAN.checkReceive() ){
 
-  // ETH -> CAN
-  int udpPacketSize = Udp.parsePacket();                          // Test si paquet Ethernet recu
-  if( udpPacketSize ){                                            // et pas vide
+		byte canMsgSize;
+		byte canMsg[CAN_MAX_FRAMESIZE];
 
-    handleCanPackets();                                           // 356 µs maxi depuis dernier check
+		// Récupération message
+		CAN.readMsgBuf( &canMsgSize, canMsg );
+		unsigned int canId = CAN.getCanId();
 
-    // Récupération packet ethernet udp et renvoi automatique pour valider récéption
-    uint8_t udpPacketBuffer[udpPacketSize];
-    Udp.read(udpPacketBuffer, udpPacketSize);
-    
-    // Test si trame correspond à une demande d'envoi valide sur le bus CAN
-    if( udpPacketSize == 13 && udpPacketBuffer[0] == udpId && udpPacketBuffer[1] == udpEnvoiCan && udpPacketBuffer[2] == 0x0A ){
+		// Envoi sur le réseau Ethernet
+		byte udpPacketBuffer[ETH_MAX_PACKETSIZE];
+		udpPacketBuffer[0] = udpId;
+		udpPacketBuffer[1] = udpReponseCan;
+		udpPacketBuffer[2] = 0x0A;
+		udpPacketBuffer[3] = canId / 0x100;
+		udpPacketBuffer[4] = canId % 0x100;
+		for( int i=0 ; i<ETH_MAX_PACKETSIZE ; i++ ){
+			if( i<canMsgSize ) udpPacketBuffer[i+5] = canMsg[i];
+			else udpPacketBuffer[i+5] = 0x00;
+		}
 
-      canPacket p;                                                // Construction du packet CAN à partir du packet Ethernet recu
-      p.id = udpPacketBuffer[3] * 0x100 + udpPacketBuffer[4];
-      for( uint8_t i=0; i<8; i++ ) p.msg[i] = udpPacketBuffer[i+5];
+		Udp.beginPacket( remoteIp, remotePort );
+		Udp.write( udpPacketBuffer, ETH_MAX_PACKETSIZE );
+		Udp.endPacket();
 
-      // Tentative d'envoi jusqu'à réussite ou timeout dépassé
-      unsigned long startTime = millis();
-      bool success = false;
-      do {
-        handleCanPackets();                                       // 248 µs maxi depuis dernier check
-        if( CAN.sendPacket(p) == CAN_OK ) success = true;         // Tentative d'envoi sur bus CAN
-      } while( (millis() - startTime) < retryCanSendTimeout && !success );
+	}
 
-    } else {
-      
-      handleCanPackets();                                         // 248 µs maxi depuis dernier check 
-      sendBufferToEth( udpPacketBuffer, udpPacketSize );          // Renvoi de la trame test de connection
+	// Test reception nouveau packet ETH
+	int udpPacketSize = Udp.parsePacket();
+	if( udpPacketSize ){
 
-    }
-    
-  }
-  
-}
+		// remoteIp = Udp.remoteIP();																	// Mise à jour adresse IP envoyeur
 
-//////////////////////////////////////////////////////
-// Fonctions
-//////////////////////////////////////////////////////
+		// Récupération du packet ETHERNET
+		byte udpPacketBuffer[ETH_MAX_PACKETSIZE];
+		Udp.read( udpPacketBuffer, udpPacketSize );
 
-// Fonction qui récupère les packets CAN et les envoient sur Ethernet en UDP tant qu'il y en a (520 µs par packet)
-// Le composant MCP2515 peut utiliser un buffer pour stocker une seconde trame -> Le temps d'execution 
-// entre 2 appels de cette fonction ne doit pas dépasser 2x le temps d'envoi d'une trame de 108 octets
-// 125kbps => 864µs par trame 
-// Temps disponible entre 2 appels = ( 864 * 2 - 520 * 2 ) = 688µs maxi
-void handleCanPackets(){
-  while( CAN.checkNewPacket() ){                                  // Test si paquets CAN recu   
-    canPacket p = CAN.getNewPacket();                             // Récupération d'un packet CAN
-    sendCanPacketToEth( p );                                      // Envoi sur ethernet du packet CAN
-  }
-}
+		// Test si trame à envoyer
+		if( udpPacketSize >= 5
+				&& udpPacketSize <= ETH_MAX_PACKETSIZE
+				&& udpPacketBuffer[0] == udpId
+				&& udpPacketBuffer[1] == udpEnvoiCan
+				&& udpPacketBuffer[2] == 0x0A
+		){
 
-// Fonction qui permet d'envoyer un buffer de taille définie sur le réseau Ethernet en UDP
-void sendBufferToEth( uint8_t *udpBuffer, int bufSize ){
-  Udp.beginPacket(remoteIp, remotePort);
-  Udp.write(udpBuffer, bufSize);
-  Udp.endPacket();
-}
+			unsigned int canId = udpPacketBuffer[3] * 0x100 + udpPacketBuffer[4];
+			byte canMsgSize = 8;
+			byte canMsg[CAN_MAX_FRAMESIZE];
+			for( byte i=0 ; i<canMsgSize ; i++ ) canMsg[i] = udpPacketBuffer[i + 5];
 
-// Fonction qui permet d'envoyer un paquet CAN ( id sur 2 octets + message de 8 octets ) sur le réseau Ethernet en UDP en ajoutant l'entête des cartes RecCan
-void sendCanPacketToEth( canPacket p ){
-  uint8_t sendBuf[13];
-  sendBuf[0] = udpId;
-  sendBuf[1] = udpReponseCan;
-  sendBuf[2] = 0x0A;
-  sendBuf[3] = p.id / 0x100;                                          // Ajout identifiant CAN
-  sendBuf[4] = p.id % 0x100;
-  for( uint8_t i=0; i<8; i++ ) sendBuf[i+5] = p.msg[i];               // Ajout message CAN
-  sendBufferToEth( sendBuf, 13 );                                     // Envoi accusé de récéption (recopie du packet ethernet recu)
+			// Envoi trame CAN
+			CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0 );
+
+		} else {
+
+			// Renvoi packet ethernet à l'envoyeur
+			Udp.beginPacket( remoteIp, remotePort );
+			Udp.write( udpPacketBuffer, udpPacketSize );
+			Udp.endPacket();
+
+		}
+
+	}
+
 }
