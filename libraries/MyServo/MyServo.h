@@ -55,6 +55,7 @@ class MyServo {
 		// Gestion puissance en sortie
 		void enableOutput();
 		void disableOutput();
+		bool isOutputEnable();
 
 		// Parametres servo
 		void setPositionMin( uint16_t positionMin );
