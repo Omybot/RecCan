@@ -12,7 +12,6 @@ unsigned long timeTorque;
 unsigned long stepTimeTorque = 100;
 byte avgCounterLimit = 10;
 unsigned int torqueBuf[4];
-unsigned int torqueAvg[4];
 unsigned int avgCounter;
 
 // Gestion des servos
@@ -67,16 +66,16 @@ void loop(){
 		if( avgCounter == avgCounterLimit ){
 
 			for( int i=0 ; i<4 ; i++ ){
-				torqueAvg[i] = torqueBuf[i] / avgCounter;
-				if( torqueBuf[i] > servos.getTorqueLimit(i) ){
+				unsigned int torqueAvg = torqueBuf[i] / avgCounter;
+				if( torqueAvg > servos.getTorqueLimit(i) ){
 					unsigned long canId = boardId;
 					unsigned char canMsgSize = 4;
-					unsigned char canMsg[8];
+					unsigned char canMsg[4];
 					canMsg[0] = TorqueAlert;
 					canMsg[1] = i;
-					canMsg[2] = torqueAvg[i] >> 8;
-					canMsg[3] = torqueAvg[i] && 0xFF;
-					CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 1);
+					canMsg[2] = torqueAvg >> 8;
+					canMsg[3] = torqueAvg & 0xFF;
+					CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0 );
 				}
 				torqueBuf[i] = 0;
 			}
@@ -244,7 +243,7 @@ void loop(){
 
 		// Test si réponse à envoyer
 		if( canMsgSize > 0 ){
-			CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0);								// Envoi réponse
+			CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0 );								// Envoi réponse
 		}
 
 	}

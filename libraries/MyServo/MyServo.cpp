@@ -107,12 +107,14 @@ unsigned int MyServo::getTorque(){ return _torque; }
 void MyServo::setPosition( float position ){
 	_targetPosition = position;
 	_trajectoryTime = 0;
+	_startPosition = _position;																	// Start = position actuelle
+
 	if( !isOutputEnable() ){																		// Si le servo est desactivé
 		enableOutput();
-		_startPosition = position;																	// Start = nouvelle position directement
-	} else {
-		_startPosition = _position;																// Start = position actuelle
+		_startPosition = _targetPosition;														// Start = position cible directement
+		_position = position;																		// Mise à jour position cible directement
 	}
+
 }
 
 float MyServo::getPosition(){
