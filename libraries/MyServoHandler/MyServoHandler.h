@@ -19,13 +19,13 @@ class MyServoHandler {
 		void setPositionMax( byte servoNumber, uint16_t positionMax );
 		void setSpeedLimit( byte servoNumber, float speedLimit );
 		void setAcceleration( byte servoNumber, float acceleration );
-		void setTorqueLimit( byte servoNumber, float torqueLimit );
+		void setTorqueLimit( byte servoNumber, unsigned int torqueLimit );
 
 		uint16_t getPositionMin( byte servoNumber );
 		uint16_t getPositionMax( byte servoNumber );
 		float getSpeedLimit( byte servoNumber );
 		float getAcceleration( byte servoNumber );
-		float getTorqueLimit( byte servoNumber );
+		unsigned int getTorqueLimit( byte servoNumber );
 
 		// Gestion puissance en sortie
 		void enableOutput( byte servoNumber );
@@ -38,7 +38,7 @@ class MyServoHandler {
 		// Infos servo
 		float getPosition( byte servoNumber );
 		float getSpeed( byte servoNumber );
-		float getTorque( byte servoNumber );
+		unsigned int getTorque( byte servoNumber );
 
 		// Gestion des interruptions
 		void timer1Interrupt();

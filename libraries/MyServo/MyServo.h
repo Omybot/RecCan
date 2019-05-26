@@ -32,11 +32,11 @@ enum ServoFunction : byte {
 	TestConnection = 0x19
 };
 
-const uint16_t DEFAULT_POSITIONMIN = 10000;
-const uint16_t DEFAULT_POSITIONMAX = 30000;
+const uint16_t DEFAULT_POSITIONMIN = 1000;
+const uint16_t DEFAULT_POSITIONMAX = 60000;
 const float DEFAULT_SPEED_LIMIT = 60000.0;
 const float DEFAULT_ACCELERATION = 60000.0;
-const float DEFAULT_TORQUE_LIMIT = 50.0;
+const unsigned int DEFAULT_TORQUE_LIMIT = 500;
 
 class MyServo {
 
@@ -61,17 +61,17 @@ class MyServo {
 		void setPositionMax( uint16_t positionMin );
 		void setSpeedLimit( float speedLimit );
 		void setAcceleration( float acceleration );
-		void setTorqueLimit( float torqueLimit );
+		void setTorqueLimit( unsigned int torqueLimit );
 
 		uint16_t getPositionMin();
 		uint16_t getPositionMax();
 		float getSpeedLimit();
 		float getAcceleration();
-		float getTorqueLimit();
+		unsigned int getTorqueLimit();
 
 		// Mesure du couple
 		void updateTorque();
-		float getTorque();
+		unsigned int getTorque();
 
 		// Gestion position/vitesse
 		void setPosition( float position );
@@ -89,10 +89,10 @@ class MyServo {
 		uint16_t _positionMax;
 		float _speedLimit;
 		float _acceleration;
-		float _torqueLimit;
+		unsigned int _torqueLimit;
 
 		float _position;
-		float _torque;
+		unsigned int _torque;
 		float _speed;
 
 		float _targetPosition;

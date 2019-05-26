@@ -3,15 +3,17 @@
 #include "MyServoHandler.h"
 #include "MyServo.h"
 
-const uint16_t boardId = 5;																		// Id de la carte
+const uint16_t boardId = 1;																		// Id de la carte
 
 unsigned long time;
 unsigned long stepTime = 1000;
 
 unsigned long timeTorque;
 unsigned long stepTimeTorque = 100;
-float torqueBuf[4];
-byte avgCounter;
+byte avgCounterLimit = 10;
+unsigned int torqueBuf[4];
+unsigned int torqueAvg[4];
+unsigned int avgCounter;
 
 // Gestion des servos
 
@@ -59,8 +61,29 @@ void loop(){
 	if( millis() > timeTorque + stepTimeTorque ){
 		timeTorque += stepTimeTorque;
 
-		for( int j=0 ; j<4 ; j++ )	torqueBuf[j] += servos.getTorque(j);
+		for( int i=0 ; i<4 ; i++ )	torqueBuf[i] += servos.getTorque(i);
 		avgCounter++;
+
+		if( avgCounter == avgCounterLimit ){
+
+			for( int i=0 ; i<4 ; i++ ){
+				torqueAvg[i] = torqueBuf[i] / avgCounter;
+				if( torqueBuf[i] > servos.getTorqueLimit(i) ){
+					unsigned long canId = boardId;
+					unsigned char canMsgSize = 4;
+					unsigned char canMsg[8];
+					canMsg[0] = TorqueAlert;
+					canMsg[1] = i;
+					canMsg[2] = torqueAvg[i] >> 8;
+					canMsg[3] = torqueAvg[i] && 0xFF;
+					CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 1);
+				}
+				torqueBuf[i] = 0;
+			}
+
+			avgCounter = 0;																			// reset compteur moyenne
+
+		}
 
 	}
 
@@ -69,26 +92,6 @@ void loop(){
 
 		state = !state;
 		digitalWrite(2, state );
-
-		// Calcul moyenne du couple
-		for( int i=0 ; i<4 ; i++ ){
-			if( avgCounter != 0 ){
-				unsigned int avg = torqueBuf[i] / avgCounter;
-				if( torqueBuf[i] > servos.getTorqueLimit(i) ){
-					// Envoi message couple dépassé sur la derniere seconde
-					unsigned long canId = boardId;
-					unsigned char canMsgSize = 4;
-					unsigned char canMsg[8];
-					canMsg[0] = TorqueAlert;
-					canMsg[1] = i;
-					canMsg[2] = avg >> 8;
-					canMsg[3] = avg && 0xFF;
-					CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 1);
-				}
-				torqueBuf[i] = 0;
-				avgCounter = 0;
-			}
-		}
 
 	}
 

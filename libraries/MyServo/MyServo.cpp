@@ -22,11 +22,11 @@ void MyServo::attach( int outputPin, int analogPin, int servoNum ){
 	_servoNum = servoNum;
 
 	// Récupération des parametres depuis l'EEPROM
-	EEPROM.get( 0x10*(_servoNum+1), _positionMin);
-	EEPROM.get( 0x10*(_servoNum+1)+2, _positionMax);
-	EEPROM.get( 0x10*(_servoNum+1)+4, _speedLimit);
-	EEPROM.get( 0x10*(_servoNum+1)+8, _acceleration);
-	EEPROM.get( 0x10*(_servoNum+1)+12, _torqueLimit);
+	EEPROM.get( 0x10*(_servoNum+1), _positionMin );
+	EEPROM.get( 0x10*(_servoNum+1)+2, _positionMax );
+	EEPROM.get( 0x10*(_servoNum+1)+4, _speedLimit );
+	EEPROM.get( 0x10*(_servoNum+1)+8, _acceleration );
+	EEPROM.get( 0x10*(_servoNum+1)+12, _torqueLimit );
 
 	// Sécurité si eeprom pas initialisée
 	if( _positionMin == 0xFFFF || isnan(_positionMin) ) setPositionMin( DEFAULT_POSITIONMIN );
@@ -76,7 +76,7 @@ void MyServo::setAcceleration( float acceleration ){
 	EEPROM.put( 0x10*(_servoNum+1)+8, _acceleration);
 }
 
-void MyServo::setTorqueLimit( float torqueLimit ){
+void MyServo::setTorqueLimit( unsigned int torqueLimit ){
 	_torqueLimit = torqueLimit;
 	EEPROM.put( 0x10*(_servoNum+1)+12, _torqueLimit);
 }
@@ -85,7 +85,7 @@ uint16_t MyServo::getPositionMin(){	return _positionMin; }
 uint16_t MyServo::getPositionMax(){ return _positionMax; }
 float MyServo::getSpeedLimit(){ return _speedLimit; }
 float MyServo::getAcceleration(){ return _acceleration; }
-float MyServo::getTorqueLimit(){ return _torqueLimit; }
+unsigned int MyServo::getTorqueLimit(){ return _torqueLimit; }
 
 ////////////////////////////////////////
 // Mesure du couple
@@ -93,14 +93,11 @@ float MyServo::getTorqueLimit(){ return _torqueLimit; }
 
 void MyServo::updateTorque(){
 
-	float voltage = analogRead( _analogPin ) * 5.0 / 1024.0;
-	// 1A dans 50mOhms => 0,05 Volts avant AOP, 2,5 Volts apres AOP
-	// 2,5V = 1000mA
-	_torque = voltage * 400;						// Ici facteur de conversion U->I(mA) carte éléctronique
+	_torque = analogRead( _analogPin );
 
 }
 
-float MyServo::getTorque(){ return _torque; }
+unsigned int MyServo::getTorque(){ return _torque; }
 
 ////////////////////////////////////////
 // Gestion position/vitesse

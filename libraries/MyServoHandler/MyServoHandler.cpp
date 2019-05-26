@@ -59,7 +59,7 @@ void MyServoHandler::setAcceleration( byte servoNumber, float acceleration ){
 	_servos[servoNumber].setAcceleration( acceleration );
 }
 
-void MyServoHandler::setTorqueLimit( byte servoNumber, float torqueLimit ){
+void MyServoHandler::setTorqueLimit( byte servoNumber, unsigned int torqueLimit ){
 	_servos[servoNumber].setTorqueLimit( torqueLimit );
 }
 
@@ -79,7 +79,7 @@ float MyServoHandler::getAcceleration( byte servoNumber ){
 	return _servos[servoNumber].getAcceleration();
 }
 
-float MyServoHandler::getTorqueLimit( byte servoNumber ){
+unsigned int MyServoHandler::getTorqueLimit( byte servoNumber ){
 	return _servos[servoNumber].getTorqueLimit();
 }
 
@@ -120,7 +120,7 @@ float MyServoHandler::getSpeed( byte servoNumber ){
 	return _servos[servoNumber].getSpeed();
 }
 
-float MyServoHandler::getTorque( byte servoNumber ){
+unsigned int MyServoHandler::getTorque( byte servoNumber ){
 	return _servos[servoNumber].getTorque();
 }
 
