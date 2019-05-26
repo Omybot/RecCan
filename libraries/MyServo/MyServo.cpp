@@ -94,7 +94,9 @@ float MyServo::getTorqueLimit(){ return _torqueLimit; }
 void MyServo::updateTorque(){
 
 	float voltage = analogRead( _analogPin ) * 5.0 / 1024.0;
-	_torque = voltage * 1000;						// Ici facteur de conversion U->I(mA) carte éléctronique
+	// 1A dans 50mOhms => 0,05 Volts avant AOP, 2,5 Volts apres AOP
+	// 2,5V = 1000mA
+	_torque = voltage * 400;						// Ici facteur de conversion U->I(mA) carte éléctronique
 
 }
 
