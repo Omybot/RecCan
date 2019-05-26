@@ -92,9 +92,13 @@ unsigned int MyServo::getTorqueLimit(){ return _torqueLimit; }
 // Mesure du couple
 ////////////////////////////////////////
 
+// Calcul du courant :
+// Shunt = 50 mOhms, Gain AOP = 50
+// U = I * 0,05 * 50 => U(V)= 2,5*I(A)
+// Plein echelle => 5V = Code 1023 = 2000mA (~x2)
 void MyServo::updateTorque(){
 
-	_torque = analogRead( _analogPin );
+	_torque = 2*analogRead( _analogPin );
 
 }
 
