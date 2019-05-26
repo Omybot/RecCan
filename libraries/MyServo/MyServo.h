@@ -28,7 +28,8 @@ enum ServoFunction : byte {
 	TargetSet = 0x15,
 	TrajectorySet = 0x16,
 	DisableOutput = 0x17,
-	TorqueAlert = 0x18
+	TorqueAlert = 0x18,
+	TestConnection = 0x19
 };
 
 const uint16_t DEFAULT_POSITIONMIN = 10000;

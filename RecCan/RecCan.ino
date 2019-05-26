@@ -231,6 +231,12 @@ void loop(){
 				break;
 			}
 
+			case TestConnection : {	// 0x19
+				canMsg[0] = TestConnection;
+				canMsgSize = 1;
+				break;
+			}
+
 		}
 
 		// Test si réponse à envoyer
