@@ -20,8 +20,11 @@ void setup(){
 
 	// Initialisation des pins temoins
 	pinMode( LED_BUILTIN, OUTPUT );																// LED de sortie
+	digitalWrite( LED_BUILTIN, LOW );
 	pinMode( ledPin, OUTPUT );																		// LED de sortie N°2 !
+	digitalWrite( ledPin, LOW );
 	pinMode( windPin, OUTPUT );																	// Commande ventilateur animation
+	digitalWrite( windPin, LOW );
 
 	// Position par défaut du servo
 	servo.attach(9);
