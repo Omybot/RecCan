@@ -11,6 +11,8 @@ Servo servo;
 unsigned long time;
 unsigned long stepTime = 100;
 
+byte gobotNotHereCounter = 0;
+
 void setup(){
 
 	// Mesure capteur omron
@@ -30,7 +32,7 @@ void setup(){
 	servo.attach(9);
 	servo.write(90);
 
-	delay(100);
+	delay(500);
 
 }
 
@@ -40,16 +42,18 @@ void loop(){
 		time += stepTime;
 
 		byte gobotIsHere = digitalRead( omronPin );
-		if( gobotIsHere ){
-			servo.write(90);
+
+		if( !gobotIsHere ){
 			digitalWrite( LED_BUILTIN, HIGH );
-			digitalWrite( ledPin, HIGH );
-			digitalWrite( windPin, HIGH );
+			gobotNotHereCounter++;
+			if( gobotNotHereCounter == 10 ){
+				servo.write(10);
+				digitalWrite( ledPin, HIGH );
+				digitalWrite( windPin, HIGH );
+			}
 		} else {
-			servo.write(10);
 			digitalWrite( LED_BUILTIN, LOW );
-			digitalWrite( ledPin, LOW );
-			digitalWrite( windPin, LOW );
+			if( gobotNotHereCounter > 0 ) gobotNotHereCounter--;
 		}
 
 	}
