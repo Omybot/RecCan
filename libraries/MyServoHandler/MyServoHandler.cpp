@@ -131,7 +131,7 @@ unsigned int MyServoHandler::getTorque( byte servoNumber ){
 void MyServoHandler::timer1Interrupt(){
 	_servos[_currentServo].setOutputLow();
 	TCCR1B &= 0b11111000; 							// Arret du timer
-	_servos[_currentServo].updateTorque();			// Mesure du couple
+	//_servos[_currentServo].updateTorque();			// Mesure du couple
 }
 
 void MyServoHandler::timer2Interrupt(){
@@ -178,6 +178,7 @@ void MyServoHandler::handleNextServo(){
 	_currentServo = (_currentServo+1) % 4;						// Determine le servo suivant
 
 	float newPos = _servos[_currentServo].calcNextPosition();	// Calcul la nouvelle position
+	_servos[_currentServo].updateTorque();			// Mesure du couple
 
 	if( newPos != 0 ){
 		rearmTimer1( newPos );									// Timer1 comme chronometre pour compter temps sortie servo état haut
