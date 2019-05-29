@@ -13,6 +13,8 @@ unsigned long stepTime = 100;
 
 byte gobotNotHereCounter = 0;
 
+unsigned long waveTime = 0;
+
 void setup(){
 
 	// Mesure capteur omron
@@ -38,22 +40,38 @@ void setup(){
 
 void loop(){
 
-	if( millis() > time + stepTime ){
-		time += stepTime;
+	if( waveTime > 0 ){
 
-		byte gobotIsHere = digitalRead( omronPin );
-
-		if( !gobotIsHere ){
-			digitalWrite( LED_BUILTIN, HIGH );
-			gobotNotHereCounter++;
-			if( gobotNotHereCounter == 10 ){
-				servo.write(10);
-				digitalWrite( ledPin, HIGH );
-				digitalWrite( windPin, HIGH );
+		if( millis() > waveTime ){
+			while(1){
+				servo.write(60);
+				delay(500);
+				servo.write(120);
+				delay(500);
 			}
-		} else {
-			digitalWrite( LED_BUILTIN, LOW );
-			if( gobotNotHereCounter > 0 ) gobotNotHereCounter--;
+		}
+
+	} else {
+
+		if( millis() > time + stepTime ){
+			time += stepTime;
+
+			byte gobotIsHere = digitalRead( omronPin );
+
+			if( !gobotIsHere ){
+				digitalWrite( LED_BUILTIN, HIGH );
+				gobotNotHereCounter++;
+				if( gobotNotHereCounter == 10 ){
+					servo.write(10);
+					digitalWrite( ledPin, HIGH );
+					digitalWrite( windPin, HIGH );
+					waveTime = millis() + 60000;
+				}
+			} else {
+				digitalWrite( LED_BUILTIN, LOW );
+				if( gobotNotHereCounter > 0 ) gobotNotHereCounter--;
+			}
+
 		}
 
 	}
