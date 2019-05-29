@@ -99,7 +99,7 @@ void loop(){
 	int udpPacketSize = Udp.parsePacket();
 	if( udpPacketSize ){
 
-		// remoteIp = Udp.remoteIP();																	// Mise à jour adresse IP envoyeur
+		remoteIp = Udp.remoteIP();																	// Mise à jour adresse IP envoyeur
 
 		// Récupération du packet ETHERNET
 		byte udpPacketBuffer[ETH_MAX_PACKETSIZE];
