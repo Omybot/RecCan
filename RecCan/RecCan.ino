@@ -3,7 +3,7 @@
 #include "MyServoHandler.h"
 #include "MyServo.h"
 
-const uint16_t boardId = 5;																		// Id de la carte
+const uint16_t boardId = 1;																		// Id de la carte
 
 unsigned long time;
 unsigned long stepTime = 1000;
@@ -48,13 +48,14 @@ bool state = false;
 
 void setup(){
 
+	delay( 100 + 100*boardId );	// delay allumage pour éviter pic de courant avec tous les servos
+
 	while( CAN_OK != CAN.begin(CAN_500KBPS) ){
-    
-    digitalWrite(2, digitalRead(2) );
-	  delay(100);
+   	digitalWrite(2, digitalRead(2) );
+		delay(100);
 	}
 	initCANMasksAndFilters();
- 
+
   servos.attach();
 
 }
