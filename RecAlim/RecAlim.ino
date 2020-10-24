@@ -33,6 +33,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET, 100000U
 #define CAN_CS_PIN  		10				// Chip select du composant MCP2515
 MCP_CAN CAN( CAN_CS_PIN );
 
+const uint16_t boardId = 10;																		// Id de la carte
+
 // Variables compteurs de temps
 unsigned long time;
 unsigned long stepTime = 50;
@@ -53,6 +55,23 @@ int vBatSeuilCpt = 0;
 //////////////////////////////////
 // Fonctions programme
 //////////////////////////////////
+
+// Fonction qui initialise masques et filtres pour le bus CAN
+void initCANMasksAndFilters(){
+
+	// Buffer de récéption RXB0 (1 masque et 2 filtres associés)
+	CAN.init_Mask( 0, 0, 0xFFFF );																// Par défaut, le masque 1 bloque tout type d'identifiant, seul les filtres peuvent autoriser les identifiants
+	CAN.init_Filt( 0, 0, boardId );																// Filtre qui n'autorique que l'id de la carte
+	CAN.init_Filt( 1, 0, 0 );																		// Filtre qui n'autorique que l'id 0
+
+	// Buffer de récéption RXB1 (1 masque et 4 filtres associés)
+	CAN.init_Mask( 1, 0, 0xFFFF );																// Par défaut, le masque 1 bloque tout type d'identifiant, seul les filtres peuvent autoriser les identifiants
+	CAN.init_Filt( 2, 0, 0 );																		// Filtre qui n'autorique que l'id 0
+	CAN.init_Filt( 3, 0, 0 );																		// Filtre qui n'autorique que l'id 0
+	CAN.init_Filt( 4, 0, 0 );																		// Filtre qui n'autorique que l'id 0
+	CAN.init_Filt( 5, 0, 0 );																		// Filtre qui n'autorique que l'id 0
+
+}
 
 // Initialisation de l'écran OLED
 void initOLED(){
@@ -168,6 +187,7 @@ void setup(){
 
 	// Init CAN
 	while( CAN_OK != CAN.begin(CAN_500KBPS) ) delay(100);									// Initialisation communication CAN
+	initCANMasksAndFilters();
 
 	// Récupération temps après setup
 	time = millis();
@@ -270,9 +290,9 @@ void loop(){
 		unsigned int iSensmA = iSens * 1000;
 
 		// Envoi trame CAN avec les infos tension et courant
-		unsigned long canId = 0x00;
+		unsigned long canId = boardId;
 		unsigned char canMsgSize = 4;
-		unsigned char canMsg[8];
+		unsigned char canMsg[4];
 		canMsg[0] = vBatmV / 0x100;
 		canMsg[1] = vBatmV % 0x100;
 		canMsg[2] = iSensmA / 0x100;
@@ -309,5 +329,28 @@ void loop(){
 	////////////////
 	// Fin Gestion infos
 	////////////////
+
+	////////////////
+	// Reception trame CAN pour la musique !
+	////////////////
+
+	if( CAN_MSGAVAIL == CAN.checkReceive() ){
+
+		// Récupération message
+		unsigned char canMsgSize;
+		unsigned char canMsg[8];
+		CAN.readMsgBuf(  &canMsgSize, canMsg );
+
+		unsigned int frequency = canMsg[0] * 0x100 + canMsg[1];
+		unsigned int duration = canMsg[2] * 0x100 + canMsg[3];
+
+		tone( speakerPin, frequency, duration );
+
+	}
+
+	////////////////
+	// Fin Reception trame CAN pour la musique !
+	////////////////
+
 
 }
