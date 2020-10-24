@@ -66,6 +66,9 @@ void initOLED(){
 
 }
 
+void powerOn(){	digitalWrite( vBatEnPin , HIGH ); }	// Allumage carte
+void powerOff(){	digitalWrite( vBatEnPin , LOW ); }	// Exctinction carte
+
 // Melodie allumage carte alim
 void startMelody(){
 
@@ -100,67 +103,34 @@ void startMelody(){
 
 }
 
-// Melodie extinction carte alim
-void stopMelody(){
+// Récupération tension batterie moyennée
+float getVBatAvg(){
 
-	int melody[] = {
-	  NOTE_G3, NOTE_C4, NOTE_E4, NOTE_G4, NOTE_E4, NOTE_G4
-	};
-
-	// note durations: 4 = quarter note, 8 = eighth note, etc.:
-	int noteDurations[] = { 8, 8, 8, 4, 8, 2 };
-
-	// iterate over the notes of the melody:
-   for (int i = 0; i < 8; i++) {
-
-     // to calculate the note duration, take one second divided by the note type.
-     //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
-     int noteDuration = 1000 / noteDurations[i];
-     tone(speakerPin, melody[i], noteDuration);
-
-     // to distinguish the notes, set a minimum time between them.
-     // the note's duration + 20% seems to work well:
-     int pauseBetweenNotes = noteDuration * 1.20;
-     delay(pauseBetweenNotes);
-     // stop the tone playing:
-     noTone(speakerPin);
-   }
-
-}
-
-// Allumage carte
-void powerOn(){
-
-	digitalWrite( vBatEnPin , HIGH );
-
-}
-
-// Exctinction carte
-void powerOff(){
-
-	digitalWrite( vBatEnPin , LOW );
-
-}
-
-// Récupération tension batterie
-/*float getVBat(){
-
-	float vBat = analogRead( vBatMesPin ) / 1024.0 * 5.0;
-	vBat = vBat * (10+47)/10;
+	// Calcul tension batterie
+	float vBat = 0;
+	for( int i=0 ; i<VBUFSIZE ; i++ ) vBat += vBatBuf[i];
+	vBat = vBat / VBUFSIZE;						// calcul signal moyen
+	vBat = vBat / 1024.0 * 5.0;				// conversion en tension arduino
+	vBat = vBat / 24.9 * 25.0;					// calibration
+	vBat = vBat * (10+47)/10;					// conversion en tension batterie
 
 	return vBat;
 
-}*/
+}
 
-// Récupération consommation
-/*float getISens(){
+// Récupération consommation moyennée
+float getISensAvg(){
 
-	float iSens = analogRead( iSensPin ) / 1024.0 * 5.0;
-	iSens = iSens / (50.0 * 0.005);
+	// Calcul courant
+	float iSens = 0;
+	for( int j=0 ; j<VBUFSIZE ; j++ ) iSens += iSensBuf[j];
+	iSens = iSens / VBUFSIZE;					// calcul signal moyen
+	iSens = iSens / 1024.0 * 5.0;				// conversion en tension arduino
+	iSens = iSens / (50.0 * 0.005);			// conversion en courant consommé
 
 	return iSens;
 
-}*/
+}
 
 // Récupération état bouton
 bool getSwitchState(){
@@ -211,7 +181,11 @@ void setup(){
 
 void loop(){
 
+
+	////////////////
 	// Gestion Exctinction
+	////////////////
+
 	while( getSwitchState() ){							// Si bouton appuyé
 		digitalWrite( greenLedPin, HIGH );
 		if( pushTime == 0 ){							// Premier appui
@@ -231,13 +205,20 @@ void loop(){
 	digitalWrite( greenLedPin, LOW );
 	pushTime = 0;									// Remise à zéro compteur
 
-	// Gestion mesure des tensions
+	////////////////
+	// Fin Gestion Exctinction
+	////////////////
+
+	////////////////
+	// Acquisition mesures
+	////////////////
+
 	if( millis() > time + stepTime ){
 		time += stepTime;
 
 		// Enregistrement signal ADC mesure tension
 		vBatBuf[vBatBufIndex++] = analogRead(vBatMesPin);
-		if( vBatBufIndex >= VBUFSIZE ) vBatBufIndex = 0;			// Rotation buffer
+		if( vBatBufIndex >= VBUFSIZE ) vBatBufIndex = 0;		// Rotation buffer
 
 		// Enregistrement signal ADC mesure courant
 		iSensBuf[iSensBufIndex++] = analogRead(iSensPin);
@@ -245,47 +226,38 @@ void loop(){
 
 	}
 
-	// Gestion affichage des infos
+	////////////////
+	// Fin Acquisition mesures
+	////////////////
+
+	////////////////
+	// Gestion infos
+	////////////////
 	if( millis() > time2 + stepTime2 ){
 		time2 += stepTime2;
 
-		// Calcul tension batterie
-		float vBat = 0;
-		for( int i=0 ; i<VBUFSIZE ; i++ ) vBat += vBatBuf[i];
-		vBat = vBat / VBUFSIZE;						// calcul signal moyen
-		vBat = vBat / 1024.0 * 5.0;				// conversion en tension arduino
-		vBat = vBat / 24.9 * 25.0;					// calibration
-		vBat = vBat * (10+47)/10;					// conversion en tension batterie
+		// Récupération des mesures tension/courant
+		float vBat = getVBatAvg();
+		float iSens = getISensAvg();
 
 		// Vérification seuil tension batterie
 		if( vBat < VBATSEUIL ){
 
-			// LED rouge qui clignote
-			digitalWrite( redLedPin, !digitalRead(redLedPin) );
-
-			// Gestion bip tous les 10 cycles
-			if( vBatSeuilCpt == 0 )	tone( speakerPin, NOTE_C3, 500 );		// BIP !!!!!!!!!!!!!
-
-			// Incrémentation compteurs
-			if(vBatSeuilCpt++ > 10) vBatSeuilCpt = 0;
+			digitalWrite( redLedPin, !digitalRead(redLedPin) );			// LED rouge qui clignote
+			if( vBatSeuilCpt == 0 )	tone( speakerPin, NOTE_C3, 500 );	// BIP !!!!!!!!!!!!!
+			if(vBatSeuilCpt++ > 10) vBatSeuilCpt = 0;							// Incrémentation compteurs
 
 		} else {
 
-			// Extinction led rouge !
-			digitalWrite( redLedPin, LOW );
-
-			// Reset compteur de bip
+			digitalWrite( redLedPin, LOW );										// Extinction led rouge !
 			noTone( speakerPin );
-			vBatSeuilCpt = 0;
+			vBatSeuilCpt = 0;															// Reset compteur de bip
 
 		}
 
-		// Calcul courant
-		float iSens = 0;
-		for( int j=0 ; j<VBUFSIZE ; j++ ) iSens += iSensBuf[j];
-		iSens = iSens / VBUFSIZE;					// calcul signal moyen
-		iSens = iSens / 1024.0 * 5.0;				// conversion en tension arduino
-		iSens = iSens / (50.0 * 0.005);			// conversion en courant consommé
+		////////////////
+		// Envoi CAN
+		////////////////
 
 		// Mise en forme en entier mV et mA pour envoyer sur bus CAN
 		unsigned int vBatmV = vBat * 1000;
@@ -295,13 +267,20 @@ void loop(){
 		unsigned long canId = 0x00;
 		unsigned char canMsgSize = 4;
 		unsigned char canMsg[8];
-		canMsg[0] = vBatmV / 0x100;		// tension[0]
+		canMsg[0] = vBatmV / 0x100;
 		canMsg[1] = vBatmV % 0x100;
 		canMsg[2] = iSensmA / 0x100;
 		canMsg[3] = iSensmA % 0x100;
 		CAN.trySendMsgBuf( canId, 0, canMsgSize, canMsg, 0 );
 
-		// Mise à jour affichage
+		////////////////
+		// Fin Envoi CAN
+		////////////////
+
+		////////////////
+		// Mise à jour Affichage
+		////////////////
+
 		display.clearDisplay();
 		display.setCursor(0,0);
 
@@ -315,6 +294,14 @@ void loop(){
 
 		display.display();
 
+		////////////////
+		// Fin Affichage
+		////////////////
+
 	}
+
+	////////////////
+	// Fin Gestion infos
+	////////////////
 
 }
