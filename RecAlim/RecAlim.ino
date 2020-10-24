@@ -48,6 +48,7 @@ float vBatBuf[VBUFSIZE];
 int vBatBufIndex = 0;
 float iSensBuf[VBUFSIZE];
 int iSensBufIndex = 0;
+int vBatSeuilCpt = 0;
 
 //////////////////////////////////
 // Fonctions programme
@@ -247,9 +248,25 @@ void loop(){
 
 		// Vérification seuil tension batterie
 		if( vBat < VBATSEUIL ){
-			digitalWrite( redLedPin, HIGH );
+
+			// LED rouge qui clignote
+			digitalWrite( redLedPin, !digitalRead(redLedPin) );
+
+			// Gestion bip tous les 10 cycles
+			if( vBatSeuilCpt == 0 )	tone( speakerPin, NOTE_C3, 500 );		// BIP !!!!!!!!!!!!!
+
+			// Incrémentation compteurs
+			if(vBatSeuilCpt++ > 10) vBatSeuilCpt = 0;
+
 		} else {
+
+			// Extinction led rouge !
 			digitalWrite( redLedPin, LOW );
+
+			// Reset compteur de bip
+			noTone( speakerPin );
+			vBatSeuilCpt = 0;
+
 		}
 
 		// Calcul courant
