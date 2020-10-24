@@ -297,7 +297,7 @@ void loop(){
 		canMsg[1] = vBatmV % 0x100;
 		canMsg[2] = iSensmA / 0x100;
 		canMsg[3] = iSensmA % 0x100;
-		CAN.trySendMsgBuf( canId, 0, canMsgSize, canMsg, 0 );
+		CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0 );
 
 		////////////////
 		// Fin Envoi CAN
