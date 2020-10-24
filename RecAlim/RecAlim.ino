@@ -213,7 +213,12 @@ void loop(){
 		} else {
 			if( millis() > pushTime + 1000 ){	// Si appui long
 				powerOff();								// Mise hors tension
-			}
+				noTone( speakerPin );
+			} else if( millis() > pushTime + 800 )	tone( speakerPin, NOTE_C3 );
+			else if( millis() > pushTime + 600 )	tone( speakerPin, NOTE_D3 );
+			else if( millis() > pushTime + 400 )	tone( speakerPin, NOTE_E3 );
+			else if( millis() > pushTime + 200 )	tone( speakerPin, NOTE_F3 );
+			else												tone( speakerPin, NOTE_G3 );
 		}
 	} else {												// Bouton non appuyé
 		digitalWrite( greenLedPin, LOW );
