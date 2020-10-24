@@ -44,7 +44,8 @@ unsigned long stepTime2 = 500;
 unsigned long pushTime = 0;
 
 // Variables pour mesure tension et courant
-#define VBATSEUIL		21
+const float VBATSEUIL		= 23;
+const float VBATSEUILRELOU = 22.5;
 #define VBUFSIZE		8
 float vBatBuf[VBUFSIZE];
 int vBatBufIndex = 0;
@@ -261,7 +262,11 @@ void loop(){
 		float iSens = getISensAvg();
 
 		// Vérification seuil tension batterie
-		if( vBat < VBATSEUIL ){
+		if( vBat < VBATSEUILRELOU ){
+
+			tone( speakerPin, NOTE_C5 );
+
+		} else if( vBat < VBATSEUIL ){
 
 			digitalWrite( redLedPin, !digitalRead(redLedPin) );			// LED rouge qui clignote
 
@@ -291,12 +296,13 @@ void loop(){
 
 		// Envoi trame CAN avec les infos tension et courant
 		unsigned long canId = boardId;
-		unsigned char canMsgSize = 4;
-		unsigned char canMsg[4];
-		canMsg[0] = vBatmV / 0x100;
-		canMsg[1] = vBatmV % 0x100;
-		canMsg[2] = iSensmA / 0x100;
-		canMsg[3] = iSensmA % 0x100;
+		unsigned char canMsgSize = 5;
+		unsigned char canMsg[5];
+		canMsg[0] = 0xF5;																// Fonction pour Gobot
+		canMsg[1] = vBatmV / 0x100;
+		canMsg[2] = vBatmV % 0x100;
+		canMsg[3] = iSensmA / 0x100;
+		canMsg[4] = iSensmA % 0x100;
 		CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0 );
 
 		////////////////
