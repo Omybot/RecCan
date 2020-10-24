@@ -69,15 +69,21 @@ void initOLED(){
 // Melodie allumage carte alim
 void startMelody(){
 
-	int melody[] = {
-	  NOTE_G3, NOTE_C4, NOTE_E4, NOTE_G4, NOTE_E4, NOTE_G4
-	};
+	/*
+	// Hockey melody
+	int nbNotes = 8;
+	int melody[nbNotes] = { 			NOTE_G3, NOTE_C4, NOTE_E4, NOTE_G4, NOTE_E4, NOTE_G4 	};
+	int noteDurations[nbNotes] = { 	8, 		8, 		8, 		4, 		8, 		2 			};	// note durations: 4 = quarter note, 8 = eighth note, etc.:
+	*/
 
-	// note durations: 4 = quarter note, 8 = eighth note, etc.:
-	int noteDurations[] = { 8, 8, 8, 4, 8, 2 };
+	// boooooring melody
+	int nbNotes = 2;
+	int melody[nbNotes] = { 			NOTE_G3, NOTE_C3 	};
+	int noteDurations[nbNotes] = { 	4, 		4 			};	// note durations: 4 = quarter note, 8 = eighth note, etc.:
+
 
 	// iterate over the notes of the melody:
-   for (int i = 0; i < 8; i++) {
+   for (int i = 0; i < nbNotes; i++) {
 
      // to calculate the note duration, take one second divided by the note type.
      //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
@@ -206,24 +212,24 @@ void setup(){
 void loop(){
 
 	// Gestion Exctinction
-	if( getSwitchState() ){							// Si bouton appuyé
+	while( getSwitchState() ){							// Si bouton appuyé
 		digitalWrite( greenLedPin, HIGH );
 		if( pushTime == 0 ){							// Premier appui
 			pushTime = millis();						// Enregistrement temps premier appui
+			tone( speakerPin, NOTE_C3 );
 		} else {
-			if( millis() > pushTime + 1000 ){	// Si appui long
+			if( millis() > pushTime + 1000 )	noTone( speakerPin );
+			else if( millis() > pushTime + 800 ){	// Appui long
+				tone( speakerPin, NOTE_G3 );
 				powerOff();								// Mise hors tension
-				noTone( speakerPin );
-			} else if( millis() > pushTime + 800 )	tone( speakerPin, NOTE_C3 );
-			else if( millis() > pushTime + 600 )	tone( speakerPin, NOTE_D3 );
-			else if( millis() > pushTime + 400 )	tone( speakerPin, NOTE_E3 );
-			else if( millis() > pushTime + 200 )	tone( speakerPin, NOTE_F3 );
-			else												tone( speakerPin, NOTE_G3 );
+			}
 		}
-	} else {												// Bouton non appuyé
-		digitalWrite( greenLedPin, LOW );
-		pushTime = 0;									// Remise à zéro compteur
 	}
+
+	// Bouton non appuyé
+	if( millis() > pushTime + 1000 )	noTone( speakerPin );
+	digitalWrite( greenLedPin, LOW );
+	pushTime = 0;									// Remise à zéro compteur
 
 	// Gestion mesure des tensions
 	if( millis() > time + stepTime ){
