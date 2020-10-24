@@ -244,14 +244,20 @@ void loop(){
 		if( vBat < VBATSEUIL ){
 
 			digitalWrite( redLedPin, !digitalRead(redLedPin) );			// LED rouge qui clignote
-			if( vBatSeuilCpt == 0 )	tone( speakerPin, NOTE_C3, 500 );	// BIP !!!!!!!!!!!!!
-			if(vBatSeuilCpt++ > 10) vBatSeuilCpt = 0;							// Incrémentation compteurs
+
+			if( vBatSeuilCpt++ == 1 )	tone( speakerPin, NOTE_C3 );		// BIP !!!!!!!!!!!!!
+			else noTone( speakerPin );
+
+			if( vBatSeuilCpt > 10 ) vBatSeuilCpt = 0;							// Incrémentation compteurs
 
 		} else {
 
 			digitalWrite( redLedPin, LOW );										// Extinction led rouge !
-			noTone( speakerPin );
-			vBatSeuilCpt = 0;															// Reset compteur de bip
+
+			if( vBatSeuilCpt > 0 ){
+				noTone( speakerPin );
+				vBatSeuilCpt = 0;														// Reset compteur de bip
+			}
 
 		}
 
