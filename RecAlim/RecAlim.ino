@@ -101,7 +101,7 @@ void startMelody(){
 
 	// boooooring melody
 	int nbNotes = 2;
-	int melody[nbNotes] = { 			NOTE_G3, NOTE_C3 	};
+	int melody[nbNotes] = { 			NOTE_C3, NOTE_G3 	};
 	int noteDurations[nbNotes] = { 	4, 		4 			};	// note durations: 4 = quarter note, 8 = eighth note, etc.:
 
 
@@ -211,11 +211,11 @@ void loop(){
 		digitalWrite( greenLedPin, HIGH );
 		if( pushTime == 0 ){							// Premier appui
 			pushTime = millis();						// Enregistrement temps premier appui
-			tone( speakerPin, NOTE_C3 );
+			tone( speakerPin, NOTE_G3 );
 		} else {
 			if( millis() > pushTime + 1000 )	noTone( speakerPin );
 			else if( millis() > pushTime + 800 ){	// Appui long
-				tone( speakerPin, NOTE_G3 );
+				tone( speakerPin, NOTE_C3 );
 				powerOff();								// Mise hors tension
 			}
 		}
