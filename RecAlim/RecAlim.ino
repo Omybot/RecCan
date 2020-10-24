@@ -242,6 +242,7 @@ void loop(){
 		for( int i=0 ; i<VBUFSIZE ; i++ ) vBat += vBatBuf[i];
 		vBat = vBat / VBUFSIZE;						// calcul signal moyen
 		vBat = vBat / 1024.0 * 5.0;				// conversion en tension arduino
+		vBat = vBat / 24.9 * 25.0;					// calibration
 		vBat = vBat * (10+47)/10;					// conversion en tension batterie
 
 		// Vérification seuil tension batterie
