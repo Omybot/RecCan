@@ -259,6 +259,20 @@ void loop(){
 		iSens = iSens / 1024.0 * 5.0;				// conversion en tension arduino
 		iSens = iSens / (50.0 * 0.005);			// conversion en courant consommé
 
+		// Mise en forme en entier mV et mA pour envoyer sur bus CAN
+		unsigned int vBatmV = vBat * 1000;
+		unsigned int iSensmA = iSens * 1000;
+
+		// Envoi trame CAN avec les infos tension et courant
+		unsigned long canId = 0x00;
+		unsigned char canMsgSize = 4;
+		unsigned char canMsg[8];
+		canMsg[0] = vBatmV / 0x100;		// tension[0]
+		canMsg[1] = vBatmV % 0x100;
+		canMsg[2] = iSensmA / 0x100;
+		canMsg[3] = iSensmA % 0x100;
+		CAN.trySendMsgBuf( canId, 0, canMsgSize, canMsg, 0 );
+
 		// Mise à jour affichage
 		display.clearDisplay();
 		display.setCursor(0,0);
