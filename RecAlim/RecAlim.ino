@@ -35,7 +35,7 @@ MCP_CAN CAN( CAN_CS_PIN );
 
 // Variables compteurs de temps
 unsigned long time;
-unsigned long stepTime = 100;
+unsigned long stepTime = 50;
 unsigned long time2;
 unsigned long stepTime2 = 500;
 
@@ -43,7 +43,7 @@ unsigned long pushTime = 0;
 
 // Variables pour mesure tension et courant
 #define VBATSEUIL		21
-#define VBUFSIZE		4
+#define VBUFSIZE		8
 float vBatBuf[VBUFSIZE];
 int vBatBufIndex = 0;
 float iSensBuf[VBUFSIZE];
