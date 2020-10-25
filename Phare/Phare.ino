@@ -20,12 +20,17 @@ void setup(){
 	pinMode( switch2Pin, INPUT );
 	pinMode( motorPin, OUTPUT );
 
+  Serial.begin(500000);
+
 	// Initialisation LEDs
 	pixels.begin();
 
+  delay(1000);
+
 	// Detection démarrage
-	for( int j=0; j<3; j++ ){
-		while( digitalRead(switch1Pin) == LOW );
+	for( int j=0; j<50; j++ ){
+		if( digitalRead(switch1Pin) == HIGH )
+      j=0;
 		delay(1);
 	}
 
@@ -33,7 +38,7 @@ void setup(){
 	digitalWrite( motorPin, HIGH );
 
 	// Detection phare en butée
-	for( int k=0; k<3; k++ ){
+	for( int k=0; k<50; k++ ){
 		while( digitalRead(switch2Pin) == LOW );
 		delay(1);
 	}
@@ -50,6 +55,9 @@ void loop(){
 
 	if( millis() > time + stepTime ){
 		time += stepTime;
+
+   Serial.print("toto");
+   Serial.println(" pouet");
 
 		for( int i=0; i<NUMPIXELS; i++ ){
 			if( i == (startPixel % NUMPIXELS) || i == ((startPixel+1) % NUMPIXELS) || i == ((startPixel+2) % NUMPIXELS) ){
