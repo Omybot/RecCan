@@ -29,7 +29,7 @@ void setup(){
 
 	// Detection démarrage
 	for( int j=0; j<50; j++ ){
-		if( digitalRead(switch1Pin) == HIGH )
+		if( digitalRead(switch1Pin) == LOW )
       j=0;
 		delay(1);
 	}
