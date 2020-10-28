@@ -15,14 +15,13 @@ const int csPin = 19;	// Chip select du composant W5500
 #define ETH_MAX_PACKETSIZE 	13
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-IPAddress ip( 10, 1, 0, 15 );															// Adresse ip de la Maison du Can
-//IPAddress remoteIp( 10, 1, 0, 5 );
-IPAddress remoteIp;
-unsigned int localPort = 12315;      																		// port sur lequel écouter
-unsigned int remotePort = 12325;												// local port to listen on
+IPAddress ip( 10, 1, 0, 15 );																		// Adresse ip de la Maison du Can
+IPAddress remoteIp( 10, 1, 0, 2 );																// Adresse ip LATTEPANDA
+unsigned int localPort = 12315;      															// port sur lequel écouter
+unsigned int remotePort = 12325;																	// port sur lequel envoyer
 
-const byte udpId = 0xC5;																					// Identifiant Udp de la Maison du CAN
-const byte udpEnvoiCan = 0xC0;																			// Commande Udp utilisée pour les envoi CAN
+const byte udpId = 0xC5;																			// Identifiant Udp de la Maison du CAN
+const byte udpEnvoiCan = 0xC0;																	// Commande Udp utilisée pour les envoi CAN
 const byte udpReponseCan = 0xC1;
 
 EthernetUDP Udp;
@@ -32,7 +31,7 @@ unsigned long linkStatusStepTime = 500;
 
 /////////////////////////////////
 // Gestion CAN
-/////////////////////////////////																					// An EthernetUDP instance to let us send and receive packets over UDP
+/////////////////////////////////
 
 #define CAN_MAX_FRAMESIZE	8
 
@@ -40,7 +39,7 @@ static CAN_message_t msg;
 
 void printCanMsg( CAN_message_t msg ){
 
-	Serial.print( msg.id, HEX );
+	/*Serial.print( msg.id, HEX );
 	Serial.print( " / " );
 	for( int i = 0; i<msg.len; i++ ){
 		Serial.print( "0x" );
@@ -48,7 +47,7 @@ void printCanMsg( CAN_message_t msg ){
 		Serial.print( msg.buf[i], HEX );
 		if( i<msg.len-1 ) Serial.print(  " - " );
 	}
-	Serial.println();
+	Serial.println();*/
 
 }
 
@@ -69,7 +68,7 @@ void setup(){
 	delay(1);
 	digitalWrite(resetPin, HIGH);
 
-	Serial.begin(1000000);
+	//Serial.begin(1000000);
 
 	SPI.setSCK(sckPin);																						// SCK sur pin 14
 	Ethernet.init(csPin);																					// CS sur pin 19
@@ -77,7 +76,7 @@ void setup(){
 
 	// Check for Ethernet hardware present
 	if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-		Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+		//Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
 		while (true) {
 			digitalWrite( ledPin, LOW );
 			delay(1); // do nothing, no point running without Ethernet hardware
@@ -115,7 +114,7 @@ void loop(){
 	if( udpPacketSize ){
 
 		remoteIp = Udp.remoteIP();          // Mise à jour adresse ip envoyeur
-    
+
 		// Récupération du packet ETHERNET
 		byte udpPacketBuffer[ETH_MAX_PACKETSIZE];
 		Udp.read( udpPacketBuffer, udpPacketSize );
@@ -167,8 +166,6 @@ void loop(){
 
 	// Récéption nouvelle trame CAN
 	while( Can0.available() ){
-
-    Serial.println("toto");
 
 		// Récupération message
 		Can0.read( msg );
