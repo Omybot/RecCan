@@ -16,7 +16,8 @@ const int csPin = 19;	// Chip select du composant W5500
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress ip( 10, 1, 0, 15 );															// Adresse ip de la Maison du Can
-IPAddress remoteIp( 10, 1, 0, 5 );
+//IPAddress remoteIp( 10, 1, 0, 5 );
+IPAddress remoteIp;
 unsigned int localPort = 12315;      																		// port sur lequel écouter
 unsigned int remotePort = 12325;												// local port to listen on
 
