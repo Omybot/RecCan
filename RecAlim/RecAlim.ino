@@ -222,7 +222,7 @@ void loop(){
 	}
 
 	// Bouton non appuyé
-	if( millis() > pushTime + 1000 )	noTone( speakerPin );
+	//if( millis() > pushTime + 1000 )	noTone( speakerPin );
 	digitalWrite( greenLedPin, LOW );
 	pushTime = 0;									// Remise à zéro compteur
 
@@ -280,7 +280,7 @@ void loop(){
 			digitalWrite( redLedPin, LOW );										// Extinction led rouge !
 
 			if( vBatSeuilCpt > 0 ){
-				noTone( speakerPin );
+				//noTone( speakerPin );
 				vBatSeuilCpt = 0;														// Reset compteur de bip
 			}
 
@@ -346,11 +346,32 @@ void loop(){
 		unsigned char canMsgSize;
 		unsigned char canMsg[8];
 		CAN.readMsgBuf(  &canMsgSize, canMsg );
+		unsigned long canId = CAN.getCanId();
 
-		unsigned int frequency = canMsg[0] * 0x100 + canMsg[1];
-		unsigned int duration = canMsg[2] * 0x100 + canMsg[3];
+		// Gestion des commandes
+		byte command = canMsg[0];
 
-		tone( speakerPin, frequency, duration );
+		canMsgSize = 0;																				// Retour à zero pour initier message de retour
+
+		switch( command ){
+
+			case 0xF6 : {
+
+				unsigned int frequency = canMsg[1] * 0x100 + canMsg[2];
+				unsigned long duration = canMsg[3] * 0x100 + canMsg[4];
+				canMsgSize = 5;
+				tone( speakerPin, frequency, duration );
+
+				break;
+
+			}
+
+		}
+
+		// Test si réponse à envoyer
+		if( canMsgSize > 0 ){
+			CAN.sendMsgBuf( canId, 0, canMsgSize, canMsg, 0 );								// Envoi réponse
+		}
 
 	}
 
