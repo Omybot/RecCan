@@ -61,7 +61,7 @@ void loop(){
 
 		for( int i=0; i<NUMPIXELS; i++ ){
 			if( i == (startPixel % NUMPIXELS) || i == ((startPixel+1) % NUMPIXELS) || i == ((startPixel+2) % NUMPIXELS) ){
-				pixels.setPixelColor( i, pixels.Color(150, 150, 150) );
+				pixels.setPixelColor( i, pixels.Color(255, 255, 255) );
 			} else {
 				pixels.setPixelColor( i, pixels.Color(0, 0, 0) );
 			}
