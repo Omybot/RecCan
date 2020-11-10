@@ -16,11 +16,12 @@ const int csPin = 19;	// Chip select du composant W5500
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress ip( 10, 1, 0, 15 );																		// Adresse ip de la Maison du Can
-IPAddress remoteIp( 10, 1, 0, 2 );																// Adresse ip LATTEPANDA
-unsigned int localPort = 12315;      															// port sur lequel écouter
-unsigned int remotePort = 12325;																	// port sur lequel envoyer
+IPAddress remoteIp;             																// Adresse ip LATTEPANDA
+bool isRemoteFound = false;			  															// Adresse ip de l'interlocuteur identifiée ou non
+unsigned int localPort = 12315;   															// port sur lequel écouter
+unsigned int remotePort = 12325;																// port sur lequel envoyer
 
-const byte udpId = 0xC5;																			// Identifiant Udp de la Maison du CAN
+const byte udpId = 0xC5;					  														// Identifiant Udp de la Maison du CAN
 const byte udpEnvoiCan = 0xC0;																	// Commande Udp utilisée pour les envoi CAN
 const byte udpReponseCan = 0xC1;
 
@@ -114,6 +115,7 @@ void loop(){
 	if( udpPacketSize ){
 
 		remoteIp = Udp.remoteIP();          // Mise à jour adresse ip envoyeur
+		isRemoteFound = true;
 
 		// Récupération du packet ETHERNET
 		byte udpPacketBuffer[ETH_MAX_PACKETSIZE];
@@ -186,9 +188,12 @@ void loop(){
 			else udpPacketBuffer[i+5] = 0x00;
 		}
 
-		Udp.beginPacket( remoteIp, remotePort );
-		Udp.write( udpPacketBuffer, ETH_MAX_PACKETSIZE );
-		Udp.endPacket();
+		if(isRemoteFound)
+		{
+			Udp.beginPacket( remoteIp, remotePort );
+			Udp.write( udpPacketBuffer, ETH_MAX_PACKETSIZE );
+			Udp.endPacket();
+		}
 
 	}
 
