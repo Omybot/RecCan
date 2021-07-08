@@ -44,8 +44,8 @@ unsigned long stepTime2 = 500;
 unsigned long pushTime = 0;
 
 // Variables pour mesure tension et courant
-const float VBATSEUIL		=  23; //14.8; (petit robot)
-const float VBATSEUILRELOU = 22.5; //14; (petit robot)
+const float VBATSEUIL		=  22; //14.8; (petit robot)
+const float VBATSEUILRELOU = 21.5; //14; (petit robot)
 #define VBUFSIZE		8
 float vBatBuf[VBUFSIZE];
 int vBatBufIndex = 0;
